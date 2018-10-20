@@ -5,4 +5,13 @@
     <string name="nav_header_title">メニュー</string>
     <string name="action_settings">設定</string>
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false"></string>
+
+    <string name="hd_start_time">開始時刻</string>
+    <string name="hd_end_time">終了時刻</string>
+    <string name="hd_distance">歩いた距離</string>
+    <string name="km">km</string>
+    <string name="hd_step">歩数</string>
+    <string name="step">歩</string>
+    <string name="hd_calorie">消費カロリー</string>
+    <string name="calorie">kcal</string>
 </resources>
