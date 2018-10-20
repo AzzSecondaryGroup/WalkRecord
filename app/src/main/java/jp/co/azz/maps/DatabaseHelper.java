@@ -9,7 +9,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final int DBVERSION = 1;
 
     public static final String TABLE_HISTORY = "history";
-    public static final String COLUMN_ID_HISTORY = "ID";
+    public static final String COLUMN_ID_HISTORY = "_id";
     public static final String COLUMN_START_DATE = "start_date";
     public static final String COLUMN_END_DATE = "end_date";
     public static final String COLUMN_NUMBER_OF_STEPS = "number_of_steps";
@@ -35,21 +35,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //coordinate(座標テーブル)作成
     public static final String TABLE_COORDINATE = "coordinate";
-    public static final String COLUMN_ID_COORDINATE = "ID";
+    public static final String COLUMN_ID_COORDINATE = "_id";
     public static final String COLUMN_NUMBER_OF_HISTORY = "number_of_history";
     public static final String COLUMN_COORDINATE_X = "coordinate_x";
     public static final String COLUMN_COORDINATE_Y = "coordinate_y";
     private static final String CREATE_TABLE_SQL_COORDINATE =
             "create table " + TABLE_COORDINATE  + " "
-                    + "(" + COLUMN_ID_COORDINATE +" INTEGER,"
-                    + COLUMN_NUMBER_OF_HISTORY + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + "(" + COLUMN_ID_COORDINATE +" INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + COLUMN_NUMBER_OF_HISTORY + " INTEGER,"
                     + COLUMN_COORDINATE_X + " REAL NOT NULL,"
                     + COLUMN_COORDINATE_Y + " REAL NOT NULL)";
 
     //coordinate(座標テーブル)SELECT文
     public static final String SELECT_SQL_COORDINATE =
             "select " +" * "+" from " + TABLE_COORDINATE
-                    + " where " + COLUMN_ID_COORDINATE
+                    + " where " + COLUMN_NUMBER_OF_HISTORY
                     +" = ? " ;
 
 
@@ -71,5 +71,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db,int oldVersion,int newVersion) {
     }
-
 }
