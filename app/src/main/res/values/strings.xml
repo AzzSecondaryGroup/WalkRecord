@@ -15,4 +15,6 @@
     <string name="step">歩</string>
     <string name="hd_calorie">消費カロリー</string>
     <string name="calorie">kcal</string>
+    <string name="text_on">Stop</string>
+    <string name="text_off">Start</string>
 </resources>
