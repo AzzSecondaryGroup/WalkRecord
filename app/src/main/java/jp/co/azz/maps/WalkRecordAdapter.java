@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
+/**
+ * Cursorから各フィールドの値を取得し、ListViewの各行に編集する
+ */
 public class WalkRecordAdapter extends CursorAdapter {
 
     public WalkRecordAdapter(Context context, Cursor c, int flag) {
