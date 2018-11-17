@@ -1,38 +1,65 @@
 package jp.co.azz.maps;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
-import android.provider.ContactsContract;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
-public class WalkRecordDao extends SQLiteOpenHelper {
-    private SQLiteOpenHelper dataBaseHelper;
-
+public class WalkRecordDao {
+    private DatabaseHelper dataBaseHelper;
 
     public WalkRecordDao(Context context) {
-        super(context,DatabaseHelper.DBNAME,null,DatabaseHelper.DBVERSION);
+        dataBaseHelper = new DatabaseHelper(context);
     }
 
 
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db,int oldVersion,int newVersion) {
-    }
-
-    public void selectHistory(){
+    public List<HistoryDto> selectHistory() {
         //history(履歴テーブル)SELECT文
         SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
 
-        db.rawQuery(DatabaseHelper.SELECT_SQL_HISTORY,null);
+        List<HistoryDto> historyList = new ArrayList<>();
 
+        try {
+
+            Cursor cursor = db.rawQuery(DatabaseHelper.SELECT_SQL_HISTORY,null);
+
+            // 参照先を一番始めに設定
+            boolean isEof = cursor.moveToFirst();
+            while(isEof) {
+
+                historyList.add(new HistoryDto(
+                        cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_ID_HISTORY)),
+                        cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_START_DATE)),
+                        cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_END_DATE)),
+                        cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_NUMBER_OF_STEPS)),
+                        cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.COLUMN_DISTANCE)),
+                        cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_CALOLIE))
+                ));
+
+                isEof = cursor.moveToNext();
+            }
+            cursor.close();
+        } finally {
+            db.close();
+        }
+        return historyList;
     }
 
-    public void insertHistory(String start_date,
+    /**
+     * 履歴一覧Insert
+     *
+     * @param start_date
+     * @param end_date
+     * @param number_of_steps
+     * @param distance
+     * @param calorie
+     * @return
+     */
+    public long insertHistory(String start_date,
                               String end_date,
                               int number_of_steps,
                               double distance,
@@ -47,7 +74,7 @@ public class WalkRecordDao extends SQLiteOpenHelper {
 
         SQLiteDatabase db = dataBaseHelper.getWritableDatabase();
 
-        db.insert(DatabaseHelper.TABLE_HISTORY,null,cv);
+        return db.insert(DatabaseHelper.TABLE_HISTORY,null,cv);
 
     }
 
@@ -61,7 +88,7 @@ public class WalkRecordDao extends SQLiteOpenHelper {
         cv.put(DatabaseHelper.COLUMN_NUMBER_OF_STEPS, number_of_steps);
         cv.put(DatabaseHelper.COLUMN_DISTANCE, distance);
         SQLiteDatabase db = dataBaseHelper.getWritableDatabase();
-        db.update(DatabaseHelper.TABLE_HISTORY, cv, "id = "+ ID , null);
+        db.update(DatabaseHelper.TABLE_HISTORY, cv, DatabaseHelper.COLUMN_ID_HISTORY + " = "+ ID , null);
 
     }
 

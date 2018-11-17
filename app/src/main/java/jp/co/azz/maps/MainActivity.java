@@ -91,6 +91,8 @@ private static final String TAG = "MainActivity";
     private boolean wifiAsked = false;
     private Chronometer mChronometer;
     private WalkRecordDao walkRecordDao;
+    private int walkHistoryNum = 0;
+    private boolean isFirstMapDisp = true;  // MAP最初の表示かどうか
 
     /**
      * onPauseの直後に呼ばれる処理
@@ -100,6 +102,7 @@ private static final String TAG = "MainActivity";
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         // メンバー変数の状態を保存
+        outState.putBoolean("IS_FIRST_MAP_DISP", isFirstMapDisp);
         outState.putBoolean("WIFI_ASKED",wifiAsked);
     }
 
@@ -112,6 +115,7 @@ private static final String TAG = "MainActivity";
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         // メンバー変数の状態を復元
+        isFirstMapDisp = savedInstanceState.getBoolean("IS_FIRST_MAP_DISP");
         wifiAsked = savedInstanceState.getBoolean("WIFI_ASKED");
     }
 
@@ -125,9 +129,22 @@ private static final String TAG = "MainActivity";
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        walkRecordDao = new WalkRecordDao(getApplicationContext());
-//        walkRecordDao.selectHistory();
-//        Log.d(TAG, "散歩履歴テーブルのダミーデータの件数：");
+        // ****************** デバッグ用散歩履歴件数表示 ******************
+        walkRecordDao = new WalkRecordDao(getApplicationContext());
+        List<HistoryDto> historyList = walkRecordDao.selectHistory();
+        Log.d(TAG, "◆散歩履歴テーブルのダミーデータの件数：" + historyList.size() + "◆");
+        if (historyList.size() > 0) {
+            HistoryDto historyDto = historyList.get(historyList.size() - 1);
+            Log.d(TAG, "散歩履歴テーブルのダミーデータ（最新）：");
+            Log.d(TAG, "　id：" + historyDto.getId());
+            Log.d(TAG, "　開始日時：" + historyDto.getStartDate());
+            Log.d(TAG, "　終了日時：" + historyDto.getEndDate());
+            Log.d(TAG, "　距離：" + historyDto.getDistance());
+            Log.d(TAG, "　歩数：" + historyDto.getNumberOfSteps());
+            Log.d(TAG, "　カロリー：" + historyDto.getCalorie());
+        }
+
+        // ****************************************************************
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -294,11 +311,12 @@ private static final String TAG = "MainActivity";
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // 位置座標のインスタンスを作成(緯度、経度)
-        // ダミー
-        CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(
-                new LatLng(35.712206, 139.706787), 15);
-        mMap.moveCamera(cUpdate);
+//        // 位置座標のインスタンスを作成(緯度、経度)
+//        // ダミー
+//        CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(
+//                new LatLng(35.712206, 139.706787), 15);
+//        mMap.moveCamera(cUpdate);
+
 
 
         // DangerousなPermissionはリクエストして許可をもらわないと使えない
@@ -426,18 +444,31 @@ private static final String TAG = "MainActivity";
         Log.d(TAG, "■位置情報が更新されたとき");
         Log.d(TAG, "■緯度、経路："+location.getLatitude() + ", " + location.getLongitude());
 
+        // 位置情報取得
+        LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+        // まだ一度もMap表示していない場合のみ最初のMap表示を行う
+        // TODO 一瞬世界地図が表示されてしまうので対応要
+        if (isFirstMapDisp) {
+            // カメラの倍率、ポジション変更
+            CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(
+            new LatLng(location.getLatitude(), location.getLongitude()), 16);
+            mMap.moveCamera(cUpdate);
+            Log.d(TAG, "■最初の地図の位置更新");
+
+            isFirstMapDisp = false;
+        }
+
         // stop後は動かさない
         if (mStop) {
             return;
         }
 
-        // 位置情報作成
-        LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
         // ********** テスト用ダミーデータの作成 *************
         if(!mRunList.isEmpty()) {
             LatLng dummy = mRunList.get(mRunList.size() - 1);
             // 屋内のテスト用に位置を変える
-            dummy = new LatLng(dummy.latitude + 0.01, dummy.longitude + 0.01);
+            dummy = new LatLng(dummy.latitude + 0.02, dummy.longitude + 0.02);
 
             currentLatLng = dummy;
         }
@@ -447,10 +478,11 @@ private static final String TAG = "MainActivity";
 
         // カメラの倍率、ポジション変更
         CameraPosition cameraPos = new CameraPosition.Builder()
-                .target(currentLatLng).zoom(19)
+                .target(currentLatLng).zoom(16)
                 .bearing(0).build();
         // 地図の中心を取得した緯度、経度に動かす
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPos));
+        Log.d(TAG, "■地図の位置更新");
 
         //マーカー設定
         // TODO　マーカーはどうするか後で検討
@@ -459,6 +491,7 @@ private static final String TAG = "MainActivity";
         MarkerOptions options = new MarkerOptions();
         options.position(latlng);
 //        // ランチャーアイコン
+        // ここでエラー出てるみたいなので一旦コメントアウト
 //        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher);
 //        options.icon(icon);
 //        Log.d(TAG, "■アイコン作成");
@@ -479,9 +512,10 @@ private static final String TAG = "MainActivity";
 //                // restartLoaderまたはinitLoaderを実行するとonCreateLoaderが呼ばれる
 //                getLoaderManager().restartLoader(ADDRESSLOADER_ID, args, this);
 //
-                // 保存可能な場合はデータをインサート
+                // 保存可能な場合は散歩履歴をインサート
                 if(saveConfirm()) {
-                    insertWalkRecord();
+                    walkHistoryNum = (int)insertWalkRecord();
+                    Log.d(TAG, "■散歩履歴インサート（レコードNo）：" + walkHistoryNum);
                 }
                 mFirst = !mFirst;
                 // 2回目以降の位置取得の場合
@@ -731,13 +765,13 @@ private static final String TAG = "MainActivity";
     /**
      * テーブルに直接レコードを追加する（コンテンツプロバイダを使わない場合）
      */
-    public void insertWalkRecord() {
+    public long insertWalkRecord() {
         if (walkRecordDao == null) {
             walkRecordDao = new WalkRecordDao(getApplicationContext());
         }
-        Log.d(TAG, "■ダミーデータをインサート");
+        Log.d(TAG, "■履歴一覧ダミーデータをインサート");
         // ダミー値
-        walkRecordDao.insertHistory("20181111", "20181111", 4, 10.0, 1000);
+        return walkRecordDao.insertHistory("20181111", "20181111", 4, 10.0, 1000);
 
     }
 
@@ -749,9 +783,9 @@ private static final String TAG = "MainActivity";
             walkRecordDao = new WalkRecordDao(getApplicationContext());
         }
 
-        Log.d(TAG, "■ダミーデータを更新");
+        Log.d(TAG, "■履歴一覧ダミーデータを更新");
         // ダミー値
-        walkRecordDao.updateHistory(1, "20181111", 4, mMeter);
+        walkRecordDao.updateHistory(walkHistoryNum, "20181111", 4, mMeter);
 
     }
 
