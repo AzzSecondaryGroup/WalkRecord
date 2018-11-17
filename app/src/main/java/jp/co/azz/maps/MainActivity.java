@@ -487,9 +487,11 @@ private static final String TAG = "MainActivity";
         //マーカー設定
         // TODO　マーカーはどうするか後で検討
         mMap.clear();
-        LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
+        //このインスタンスは不要のため、コメントアウト
+        // LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
         MarkerOptions options = new MarkerOptions();
-        options.position(latlng);
+        //options.position(latlng);
+        options.position(currentLatLng);
 //        // ランチャーアイコン
         // ここでエラー出てるみたいなので一旦コメントアウト
 //        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher);
@@ -512,6 +514,7 @@ private static final String TAG = "MainActivity";
 //                // restartLoaderまたはinitLoaderを実行するとonCreateLoaderが呼ばれる
 //                getLoaderManager().restartLoader(ADDRESSLOADER_ID, args, this);
 //
+                Log.d(TAG, "saveConfirm：" + saveConfirm());
                 // 保存可能な場合は散歩履歴をインサート
                 if(saveConfirm()) {
                     walkHistoryNum = (int)insertWalkRecord();
@@ -521,11 +524,13 @@ private static final String TAG = "MainActivity";
                 // 2回目以降の位置取得の場合
             } else {
                 // 移動線を描画
-                drawTrace(latlng);
+                //drawTrace(latlng);
+                drawTrace(currentLatLng);
                 // 走行距離を累積
                 sumDistance();
 
-                updateWalkRecord();
+                //座標更新、履歴テーブル更新
+                updateWalkRecord(currentLatLng);
             }
         }
 
@@ -778,10 +783,13 @@ private static final String TAG = "MainActivity";
     /**
      * テーブルのレコードを直接変更する（コンテンツプロバイダを使わない場合）
      */
-    public void updateWalkRecord() {
+    public void updateWalkRecord(LatLng currentLatLng) {
         if (walkRecordDao == null) {
             walkRecordDao = new WalkRecordDao(getApplicationContext());
         }
+        Log.d(TAG, "■座標ダミーデータをインサート");
+        walkRecordDao.insertCoordinate(walkHistoryNum,currentLatLng.latitude,currentLatLng.longitude);
+        Log.d(TAG, "■座標件数"+walkRecordDao.selectCoordinateCount());
 
         Log.d(TAG, "■履歴一覧ダミーデータを更新");
         // ダミー値

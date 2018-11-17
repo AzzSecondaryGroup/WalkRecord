@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.DatabaseUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,12 +107,12 @@ public class WalkRecordDao {
 
     }
 
-    public void insertCoordinate(int ID,
+    public void insertCoordinate(int number_of_history,
                               double coordinate_x,
                               double coordinate_y){
         //history(履歴テーブル)INSERT文
         ContentValues cv = new ContentValues();
-        cv.put(DatabaseHelper.COLUMN_ID_COORDINATE, ID);
+        cv.put(DatabaseHelper.COLUMN_NUMBER_OF_HISTORY, number_of_history);
         cv.put(DatabaseHelper.COLUMN_COORDINATE_X, coordinate_x);
         cv.put(DatabaseHelper.COLUMN_COORDINATE_Y, coordinate_y);
         SQLiteDatabase db = dataBaseHelper.getWritableDatabase();
@@ -124,5 +125,11 @@ public class WalkRecordDao {
         SQLiteDatabase db = dataBaseHelper.getWritableDatabase();
         db.delete(DatabaseHelper.TABLE_COORDINATE,  "id = "+ ID , null);
 
+    }
+    public long selectCoordinateCount(){
+        //history(履歴テーブル)SELECT文
+        SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+        long recodeCount = DatabaseUtils.queryNumEntries(db, DatabaseHelper.TABLE_COORDINATE);
+        return recodeCount;
     }
 }
