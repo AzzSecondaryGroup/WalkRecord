@@ -9,6 +9,11 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 
+/**
+ * walkrecordテーブルのレコードをCursorLoaderに提供するクラス
+ * （SQLiteのデータベースのデータをCursorLoaderで非同期に取得するときに使用、
+ * ContentProviderクラスは別のアプリにアプリ情報を公開するときに利用する）
+ */
 public class WalkRecordContentProvider extends ContentProvider {
     private DatabaseHelper mDbHelper;
 
@@ -56,6 +61,13 @@ public class WalkRecordContentProvider extends ContentProvider {
 
         return cursor;
     }
+
+    /**
+     * walkrecordテーブルにレコードを追加する
+     * @param uri
+     * @param values
+     * @return
+     */
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {

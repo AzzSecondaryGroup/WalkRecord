@@ -8,82 +8,208 @@
     tools:context=".MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="開始時刻：00:00:00"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.022"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.032" />
+        android:layout_below="@id/toggle_button_layout"
+        android:orientation="vertical">
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:background="#000000"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.08" />
+        <LinearLayout
+            android:padding="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/outside_frame">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="開始時刻"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias="0.022"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.032" />
+            <TextView
+                android:id="@+id/main_start_time"
+                android:text="2018/11/03/18:00"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias="0.022"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.032" />
+        </LinearLayout>
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:background="#000000"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.160" />
+        <!--<View-->
+            <!--android:layout_marginTop="5dp"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="1dp"-->
+            <!--android:background="@android:color/black"/>-->
 
-    <TextView
-        android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_marginTop="-1dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:padding="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:orientation="horizontal"
+                android:background="@drawable/outside_frame">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="距離："
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintHorizontal_bias="0.022"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.11" />
+                <TextView
+                    android:id="@+id/main_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="100km"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintHorizontal_bias="0.022"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.11" />
+            </LinearLayout>
+
+            <!--<View-->
+                <!--android:layout_marginLeft="5dp"-->
+                <!--android:layout_marginRight="5dp"-->
+                <!--android:layout_width="1dp"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:background="@android:color/black"/>-->
+
+            <LinearLayout
+                android:padding="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:orientation="horizontal"
+                android:background="@drawable/outside_frame">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="歩数："
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintHorizontal_bias="0.39"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.11" />
+                <TextView
+                    android:id="@+id/main_step"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="100"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintHorizontal_bias="0.39"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.11" />
+            </LinearLayout>
+
+            <!--<View-->
+                <!--android:layout_marginLeft="5dp"-->
+                <!--android:layout_marginRight="5dp"-->
+                <!--android:layout_width="1dp"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:background="@android:color/black"/>-->
+
+            <LinearLayout
+                android:padding="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:orientation="horizontal"
+                android:background="@drawable/outside_frame">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="消費カロリー："
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintHorizontal_bias="0.9"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.11" />
+                <TextView
+                    android:id="@+id/main_calorie"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="100cal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintHorizontal_bias="0.9"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.11" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!--<View-->
+            <!--android:layout_marginBottom="1dp"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="1dp"-->
+            <!--android:background="@android:color/black"/>-->
+
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:map="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/mapFragment" tools:context=".MainActivity"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            />
+        <!--<com.google.android.gms.maps.MapView-->
+            <!--android:id="@+id/mapView"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="fill_parent"-->
+            <!--app:layout_constraintBottom_toBottomOf="parent"-->
+            <!--app:layout_constraintEnd_toEndOf="parent"-->
+            <!--app:layout_constraintHorizontal_bias="0.0"-->
+            <!--app:layout_constraintStart_toStartOf="parent"-->
+            <!--app:layout_constraintTop_toTopOf="parent"-->
+            <!--app:layout_constraintVertical_bias="1.0"/>-->
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/toggle_button_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="距離：100km"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.022"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.11" />
-
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="歩数：100"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.39"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.11" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="消費カロリー：100cal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.9"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.11" />
-
-    <com.google.android.gms.maps.MapView
-        android:id="@+id/mapView"
-        android:layout_width="0dp"
-        android:layout_height="429dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
-
+        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:baselineAligned="false"
+        android:gravity="bottom"
+        android:orientation="horizontal" >
+        <ToggleButton
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOn="@string/text_on"
+            android:textOff="@string/text_off"
+            android:id="@+id/toggleButton"
+            />
+    </LinearLayout>
 </android.support.constraint.ConstraintLayout>
