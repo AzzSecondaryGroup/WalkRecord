@@ -35,7 +35,7 @@ public class WalkRecordAdapter extends ArrayAdapter<HistoryDto> {
 //        TextView tv_calorie = (TextView) view.findViewById(R.id.calorie);
 //
 //        tv_start_time.setText(String.valueOf(start_time));
-//        tv_end_time.setText(end_time);
+//        tv_end_time.setText(String.valueOf(end_time));
 //        tv_distance.setText(String.format("%.2f",distance/1000));
 //        tv_step_cnt.setText(step_cnt);
 //        tv_calorie.setText(calorie);
@@ -73,14 +73,19 @@ public class WalkRecordAdapter extends ArrayAdapter<HistoryDto> {
         if (null == rowView) rowView = mLayoutInflater.inflate(R.layout.walk_record_item, null);
 
         TextView tv_start_time = (TextView)rowView.findViewById(R.id.start_time);
+        TextView tv_end_time = (TextView)rowView.findViewById(R.id.end_time);
+        TextView tv_step_cnt = (TextView)rowView.findViewById(R.id.step_cnt);
+        TextView tv_distance = (TextView)rowView.findViewById(R.id.distance);
+        TextView tv_calorie = (TextView)rowView.findViewById(R.id.calorie);
 
         // 特定行(position)のデータを得る
         HistoryDto history = (HistoryDto)getItem(position);
 
         tv_start_time.setText(String.valueOf(history.getStartDate()));
-
-
-
+        tv_end_time.setText(String.valueOf(history.getEndDate()));
+        tv_step_cnt.setText(String.valueOf(history.getNumberOfSteps()));
+        tv_distance.setText(String.valueOf(String.format("%.2f",history.getDistance()/1000)));
+        tv_calorie.setText(String.valueOf(history.getCalorie()));
 
         return rowView;
     }

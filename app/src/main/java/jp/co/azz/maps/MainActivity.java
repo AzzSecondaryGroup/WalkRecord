@@ -130,6 +130,7 @@ private static final String TAG = "MainActivity";
         setContentView(R.layout.activity_main);
 
         // ****************** デバッグ用散歩履歴件数表示 ******************
+        insertWalkRecord();
         walkRecordDao = new WalkRecordDao(getApplicationContext());
         List<HistoryDto> historyList = walkRecordDao.selectHistory();
         Log.d(TAG, "◆散歩履歴テーブルのダミーデータの件数：" + historyList.size() + "◆");
@@ -771,7 +772,7 @@ private static final String TAG = "MainActivity";
         }
         Log.d(TAG, "■履歴一覧ダミーデータをインサート");
         // ダミー値
-        return walkRecordDao.insertHistory("20181111", "20181111", 4, 10.0, 1000);
+        return walkRecordDao.insertHistory("20181111", "20181112", 4, 10.0, 1000);
 
     }
 
