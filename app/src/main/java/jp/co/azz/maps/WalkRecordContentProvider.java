@@ -9,9 +9,11 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 
-import jp.co.azz.maps.databases.DatabaseContract;
-import jp.co.azz.maps.databases.DatabaseHelper;
-
+/**
+ * walkrecordテーブルのレコードをCursorLoaderに提供するクラス
+ * （SQLiteのデータベースのデータをCursorLoaderで非同期に取得するときに使用、
+ * ContentProviderクラスは別のアプリにアプリ情報を公開するときに利用する）
+ */
 public class WalkRecordContentProvider extends ContentProvider {
     private DatabaseHelper mDbHelper;
 
@@ -39,14 +41,14 @@ public class WalkRecordContentProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
 
-        queryBuilder.setTables(DatabaseContract.History.TABLE_NAME);
+        queryBuilder.setTables(DatabaseHelper.TABLE_HISTORY);
 
         int uriType = uriMatcher.match(uri);
         switch (uriType) {
             case WALKRECORD :
                 break;
             case WALKRECORD_ID:
-                queryBuilder.appendWhere(DatabaseContract.History._ID + "="
+                queryBuilder.appendWhere(DatabaseHelper.COLUMN_ID_HISTORY + "="
                         + uri.getLastPathSegment());
                 break;
             default:
@@ -59,6 +61,13 @@ public class WalkRecordContentProvider extends ContentProvider {
 
         return cursor;
     }
+
+    /**
+     * walkrecordテーブルにレコードを追加する
+     * @param uri
+     * @param values
+     * @return
+     */
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
@@ -67,7 +76,7 @@ public class WalkRecordContentProvider extends ContentProvider {
         long id = 0;
         switch (uriType) {
             case WALKRECORD:
-                id = sqlDB.insert(DatabaseContract.History.TABLE_NAME, null, values);
+                id = sqlDB.insert(DatabaseHelper.TABLE_HISTORY, null, values);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);

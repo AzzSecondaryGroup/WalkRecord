@@ -4,5 +4,25 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">メニュー</string>
     <string name="action_settings">設定</string>
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false"></string>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyBIGPs3ajmbgnIft8JdHn-1XgZoyHllgQQ</string>
+
+    <string name="hd_start_time">開始時刻</string>
+    <string name="hd_end_time">終了時刻</string>
+    <string name="hd_distance">歩いた距離</string>
+    <string name="km">km</string>
+    <string name="hd_step">歩数</string>
+    <string name="step">歩</string>
+    <string name="hd_calorie">消費カロリー</string>
+    <string name="calorie">kcal</string>
+    <string name="text_on">Stop</string>
+    <string name="text_off">Start</string>
+
+    <string name="wifi_confirm_dialog_title">WIFIをオフにしますか</string>
+    <string name="wifi_confirm_dialog_message">市街地を走ると、WIFIをひろって現在地が飛ぶことがあります</string>
+    <string name="save_confirm_dialog_title">この走行を記録しますか</string>
+
+    <string name="alert_dialog_yes">YES</string>
+    <string name="alert_dialog_no">NO</string>
+    <string name="alert_dialog_ok">OK</string>
+    <string name="alert_dialog_cancel">CANCEL</string>
 </resources>
