@@ -131,7 +131,15 @@ public class WalkRecordDao {
     public CoordinateListDto selectCoordinate(long ID){
         try(
                 SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
-                Cursor cursor = db.rawQuery(DatabaseContract.Coordinate.SELECT_SQL,new String[]{String.valueOf(ID)})
+                Cursor cursor = db.query(
+                  DatabaseContract.Coordinate.TABLE_NAME,
+                  null,
+                  DatabaseContract.Coordinate.COLUMN_NUMBER_OF_HISTORY + " = ?",
+                  new String[]{String.valueOf(ID)},
+                        null,
+                        null,
+                        null
+                );
         ) {
             return CoordinateListDto.create(cursor);
         }

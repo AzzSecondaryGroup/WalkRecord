@@ -19,10 +19,13 @@
 
     <string name="wifi_confirm_dialog_title">WIFIをオフにしますか</string>
     <string name="wifi_confirm_dialog_message">市街地を走ると、WIFIをひろって現在地が飛ぶことがあります</string>
-    <string name="save_confirm_dialog_title">この走行を記録しますか</string>
+    <string name="save_confirm_dialog_title">このお散歩を記録しますか</string>
 
     <string name="alert_dialog_yes">YES</string>
     <string name="alert_dialog_no">NO</string>
     <string name="alert_dialog_ok">OK</string>
     <string name="alert_dialog_cancel">CANCEL</string>
+    <string name="view_calorie_calculation">消費カロリー</string>
+    <string name="view_setting">設定画面</string>
+    <string name="view_detail">詳細</string>
 </resources>
