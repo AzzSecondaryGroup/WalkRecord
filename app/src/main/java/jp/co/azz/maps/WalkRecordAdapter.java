@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import jp.co.azz.maps.databases.HistoryDto;
+
 /**
  * Cursorから各フィールドの値を取得し、ListViewの各行に編集する
  */
@@ -72,15 +74,20 @@ public class WalkRecordAdapter extends ArrayAdapter<HistoryDto> {
         // convertViewは使いまわされている可能性があるのでnullの時だけ新しく作る
         if (null == rowView) rowView = mLayoutInflater.inflate(R.layout.walk_record_item, null);
 
-        TextView tv_start_time = (TextView)rowView.findViewById(R.id.start_time);
+        TextView startTime = (TextView)rowView.findViewById(R.id.start_time);
+        TextView endTime = (TextView)rowView.findViewById(R.id.end_time);
+        TextView distance = (TextView)rowView.findViewById(R.id.distance);
+        TextView step = (TextView)rowView.findViewById(R.id.step_cnt);
+        TextView calorie = (TextView)rowView.findViewById(R.id.calorie);
 
         // 特定行(position)のデータを得る
         HistoryDto history = (HistoryDto)getItem(position);
 
-        tv_start_time.setText(String.valueOf(history.getStartDate()));
-
-
-
+        startTime.setText(String.valueOf(history.getStartDate()));
+        endTime.setText(String.valueOf(history.getEndDate()));
+        distance.setText(String.valueOf(history.getDistance()));
+        step.setText(String.valueOf(history.getNumberOfSteps()));
+        calorie.setText(String.valueOf(history.getCalorie()));
 
         return rowView;
     }

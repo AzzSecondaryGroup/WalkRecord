@@ -9,6 +9,9 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 
+import jp.co.azz.maps.databases.DatabaseContract;
+import jp.co.azz.maps.databases.DatabaseHelper;
+
 /**
  * walkrecordテーブルのレコードをCursorLoaderに提供するクラス
  * （SQLiteのデータベースのデータをCursorLoaderで非同期に取得するときに使用、
@@ -41,14 +44,14 @@ public class WalkRecordContentProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
 
-        queryBuilder.setTables(DatabaseHelper.TABLE_HISTORY);
+        queryBuilder.setTables(DatabaseContract.History.TABLE_NAME);
 
         int uriType = uriMatcher.match(uri);
         switch (uriType) {
             case WALKRECORD :
                 break;
             case WALKRECORD_ID:
-                queryBuilder.appendWhere(DatabaseHelper.COLUMN_ID_HISTORY + "="
+                queryBuilder.appendWhere(DatabaseContract.History._ID + "="
                         + uri.getLastPathSegment());
                 break;
             default:
@@ -76,7 +79,7 @@ public class WalkRecordContentProvider extends ContentProvider {
         long id = 0;
         switch (uriType) {
             case WALKRECORD:
-                id = sqlDB.insert(DatabaseHelper.TABLE_HISTORY, null, values);
+                id = sqlDB.insert(DatabaseContract.History.TABLE_NAME, null, values);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);

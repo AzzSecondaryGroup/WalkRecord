@@ -59,6 +59,10 @@ The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
             android:name=".SettingActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".DetailActivity"
+            android:label="お散歩アプリモック"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

@@ -65,11 +65,11 @@ public class DetailActivity extends FragmentActivity
         MapFragment mapFragment = MapFragment.newInstance();
 
         // MapViewをMapFragmentに変更する
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.mapView, mapFragment);
-        fragmentTransaction.commit();
-
-        mapFragment.getMapAsync(this);
+//        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+//        fragmentTransaction.add(R.id.mapView, mapFragment);
+//        fragmentTransaction.commit();
+//
+//        mapFragment.getMapAsync(this);
 
     }
 
@@ -130,21 +130,16 @@ public class DetailActivity extends FragmentActivity
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
-        this.insertMockData();
-
         PolylineOptions polylineOptions = new PolylineOptions();
         polylineOptions.color(Color.RED);
         polylineOptions.width(10);
 
-        String historyId = getHistoryId();
-
-        List<LatLng> coordinates = getCoordinates(historyId);
-
-        if (coordinates.size() > 0) {
-            polylineOptions.addAll(coordinates);
-            mMap.addPolyline(polylineOptions);
-        }
+//        List<LatLng> coordinates = getCoordinates(historyId);
+//
+//        if (coordinates.size() > 0) {
+//            polylineOptions.addAll(coordinates);
+//            mMap.addPolyline(polylineOptions);
+//        }
     }
 
     private List<LatLng> getCoordinates (String historyId) {
@@ -173,117 +168,5 @@ public class DetailActivity extends FragmentActivity
         Log.v("test","after");
 
         return coordinates;
-    }
-
-    /**
-     * ヒストリーIDを取得する
-     * 一覧から呼ぶようになったら不要になる予定
-     * @return 履歴ID
-     */
-    @Nullable
-    private String getHistoryId() {
-        Cursor cursor = db.query(
-                DatabaseContract.History.TABLE_NAME // table name
-                ,null // fields
-                ,null // where
-                ,null // where args
-                ,null // group by
-                ,null // having
-                ,null // order by
-                ,"1"
-        );
-
-        if (0 < cursor.getCount()) {
-            cursor.moveToFirst();
-            String id = cursor.getString(cursor.getColumnIndex(DatabaseContract.History._ID));
-            return id;
-        }
-
-        return null;
-    }
-
-    private void insertMockData() {
-
-        WalkRecordDao dao = new WalkRecordDao(getApplicationContext());
-        {
-            Cursor query = db.query(
-                    DatabaseContract.History.TABLE_NAME,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-            );
-            while (query.moveToNext()) {
-                int id = query.getInt(query.getColumnIndex(DatabaseContract.History._ID));
-                dao.deleteHistory(id);
-            }
-        }
-        {
-            Cursor query = db.query(
-                    DatabaseContract.Coordinate.TABLE_NAME,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-            );
-            while (query.moveToNext()) {
-                int id = query.getInt(query.getColumnIndex(DatabaseContract.History._ID));
-                dao.deleteCoordinate(id);
-            }
-        }
-        this.insertHistory();
-
-        Cursor historyCursor;
-        int historyId;
-        historyCursor = db.query(
-                DatabaseContract.History.TABLE_NAME // table name
-                , null // fields
-                , null // where
-                , null // where args
-                , null // group by
-                , null // having
-                , null // order by
-                , "1"
-        );
-
-        historyId = -1;
-
-        if (historyCursor != null) {
-            if (0 < historyCursor.getCount()){
-                historyCursor.moveToFirst();
-                historyId = historyCursor.getInt(historyCursor.getColumnIndex(DatabaseContract.History._ID));
-            }
-        }
-
-        if (0 <= historyId) {
-            insertCoordinate(historyId);
-        }
-    }
-
-    private boolean insertHistory() {
-        WalkRecordDao dao = new WalkRecordDao(getApplicationContext());
-        dao.insertHistory(
-                "",
-                "",
-                100,
-                2000.333,
-                900
-                );
-
-        return false;
-    }
-
-    private void insertCoordinate(int historyId) {
-        WalkRecordDao dao = new WalkRecordDao(getApplicationContext());
-        dao.insertCoordinate(historyId, 35.712206, 139.706787);
-        dao.insertCoordinate(historyId, 36.712206, 140.706787);
-        dao.insertCoordinate(historyId, 37.712206, 141.706787);
-        dao.insertCoordinate(historyId, 38.712206, 142.706787);
-        dao.insertCoordinate(historyId, 39.712206, 143.706787);
-        dao.insertCoordinate(historyId, 40.712206, 144.706787);
     }
 }

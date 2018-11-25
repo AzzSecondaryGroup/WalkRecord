@@ -5,6 +5,10 @@ import android.os.Bundle;
 
 import java.util.List;
 
+import jp.co.azz.maps.databases.DatabaseContract;
+import jp.co.azz.maps.databases.HistoryDto;
+import jp.co.azz.maps.databases.WalkRecordDao;
+
 /**
  * 履歴一覧表示
  * LoaderCallbacksを実装してCursorを取得する

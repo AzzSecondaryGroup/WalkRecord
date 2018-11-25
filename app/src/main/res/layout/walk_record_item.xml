@@ -10,14 +10,14 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@string/hd_start_time"
+            android:text="@string/hd_start_time"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             />
 
         <TextView
-            android:id="@string/hd_end_time"
+            android:text="@string/hd_end_time"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -53,69 +53,69 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"></LinearLayout>
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@string/hd_distance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:text="@string/hd_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:id="@+id/distance"
-        android:paddingLeft="10dp"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:id="@+id/distance"
+            android:paddingLeft="10dp"
+            android:textSize= "16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:text="@string/km"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:text="@string/km"
+            android:textSize= "16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:id="@string/hd_step"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:text="@string/hd_step"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:id="@+id/step_cnt"
-        android:paddingLeft="10dp"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:id="@+id/step_cnt"
+            android:paddingLeft="10dp"
+            android:textSize= "16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:text="@string/step"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:text="@string/step"
+            android:textSize= "16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:id="@string/hd_calorie"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:text="@string/hd_calorie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:id="@+id/calorie"
-        android:paddingLeft="10dp"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:id="@+id/calorie"
+            android:paddingLeft="10dp"
+            android:textSize= "16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:text="@string/calorie"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
-
+        <TextView
+            android:text="@string/calorie"
+            android:textSize= "16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
 </LinearLayout>

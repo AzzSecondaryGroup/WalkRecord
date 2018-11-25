@@ -54,14 +54,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
             <LinearLayout
-                android:padding="5dp"
-                android:layout_marginBottom="5dp"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
                 android:layout_weight="3"
-                android:orientation="horizontal"
-                android:background="@drawable/outside_frame">
+                android:background="@drawable/outside_frame"
+                android:padding="5dp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -72,6 +73,7 @@
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="0.11" />
+
                 <TextView
                     android:id="@+id/main_distance"
                     android:layout_width="wrap_content"

@@ -50,6 +50,11 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.co.azz.maps.databases.DatabaseContract;
+import jp.co.azz.maps.databases.DatabaseHelper;
+import jp.co.azz.maps.databases.HistoryDto;
+import jp.co.azz.maps.databases.WalkRecordDao;
+
 //import android.location.LocationListener;
 
 public class MainActivity extends AppCompatActivity
@@ -298,8 +303,9 @@ private static final String TAG = "MainActivity";
         } else if (id == R.id.setting) {
             Intent intent = new Intent(getApplication(), SettingActivity.class);
             startActivity(intent);
-        } else if (id == R.id.etc) {
-
+        } else if (id == R.id.walk_detail) {
+            Intent intent = new Intent(getApplication(), DetailActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -776,8 +782,17 @@ private static final String TAG = "MainActivity";
         }
         Log.d(TAG, "■履歴一覧ダミーデータをインサート");
         // ダミー値
-        return walkRecordDao.insertHistory("20181111", "20181111", 4, 10.0, 1000);
 
+        final long historyId = walkRecordDao.insertHistory("20181111", "20181111", 4, 10.0, 1000);
+
+        walkRecordDao.insertCoordinate(historyId, 35.712206, 139.706787);
+        walkRecordDao.insertCoordinate(historyId, 36.712206, 140.706787);
+        walkRecordDao.insertCoordinate(historyId, 37.712206, 141.706787);
+        walkRecordDao.insertCoordinate(historyId, 38.712206, 142.706787);
+        walkRecordDao.insertCoordinate(historyId, 39.712206, 143.706787);
+        walkRecordDao.insertCoordinate(historyId, 40.712206, 144.706787);
+
+        return historyId;
     }
 
     /**
