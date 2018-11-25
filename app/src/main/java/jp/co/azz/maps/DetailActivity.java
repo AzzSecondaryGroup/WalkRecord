@@ -2,14 +2,8 @@ package jp.co.azz.maps;
 
 import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -18,23 +12,17 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import jp.co.azz.maps.databases.CoordinateDto;
 import jp.co.azz.maps.databases.CoordinateListDto;
-import jp.co.azz.maps.databases.DatabaseContract;
-import jp.co.azz.maps.databases.DatabaseHelper;
 import jp.co.azz.maps.databases.WalkRecordDao;
 
 public class DetailActivity extends AppCompatActivity
@@ -72,6 +60,15 @@ public class DetailActivity extends AppCompatActivity
 
         mapFragment.getMapAsync(this);
 
+        Bundle extras = this.getIntent().getExtras();
+        long historyId = (long)extras.get("historyId");
+        walkRecordDao.selectByIdFromHistory(historyId);
+
+        View startTime = findViewById(R.id.start_time);
+        View endTime = findViewById(R.id.end_time);
+        View distance = findViewById(R.id.distance);
+        View step = findViewById(R.id.step);
+        View calorie = findViewById(R.id.calorie);
     }
 
     @Override

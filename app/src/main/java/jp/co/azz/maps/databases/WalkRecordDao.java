@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.DatabaseUtils;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -44,6 +45,36 @@ public class WalkRecordDao {
             }
         }
         return historyList;
+    }
+
+    /**
+     * 履歴取得（id指定）
+     * @param historyId
+     * @return
+     */
+    @Nullable
+    public HistoryDto selectByIdFromHistory(long historyId) {
+        //history(履歴テーブル)SELECT文
+        List<HistoryDto> historyList = new ArrayList<>();
+
+        try(
+                SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+                Cursor cursor = db.query(
+                        DatabaseContract.History.TABLE_NAME,
+                        null,
+                        DatabaseContract.History._ID + " = ?",
+                        new String[]{String.valueOf(historyId)},
+                        null,
+                        null,
+                        null,
+                        "1"
+                )
+        ) {
+            if(cursor.moveToFirst()) {
+                return new HistoryDto(cursor);
+            }
+            return null;
+        }
     }
 
     /**
