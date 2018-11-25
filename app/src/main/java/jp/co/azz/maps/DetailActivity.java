@@ -63,12 +63,6 @@ public class DetailActivity extends AppCompatActivity
         Bundle extras = this.getIntent().getExtras();
         long historyId = (long)extras.get("historyId");
         walkRecordDao.selectByIdFromHistory(historyId);
-
-        View startTime = findViewById(R.id.start_time);
-        View endTime = findViewById(R.id.end_time);
-        View distance = findViewById(R.id.distance);
-        View step = findViewById(R.id.step);
-        View calorie = findViewById(R.id.calorie);
     }
 
     @Override
