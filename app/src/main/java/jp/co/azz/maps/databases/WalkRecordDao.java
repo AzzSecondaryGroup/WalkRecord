@@ -5,6 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.DatabaseUtils;
+import android.support.annotation.NonNull;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +30,7 @@ public class WalkRecordDao {
             SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
             Cursor cursor = db.rawQuery(DatabaseContract.History.SELECT_SQL,null)
         ) {
-            // 参照先を一番始めに設定
-            boolean isEof = cursor.moveToFirst();
-            while(isEof) {
+            while(cursor.moveToNext()) {
 
                 historyList.add(new HistoryDto(
                         cursor.getInt(cursor.getColumnIndex(DatabaseContract.History._ID)),
@@ -40,9 +41,7 @@ public class WalkRecordDao {
                         cursor.getInt(cursor.getColumnIndex(DatabaseContract.History.COLUMN_CALOLIE))
                 ));
 
-                isEof = cursor.moveToNext();
             }
-            cursor.close();
         }
         return historyList;
     }
@@ -97,17 +96,25 @@ public class WalkRecordDao {
 
     }
 
-    public void selectCoordinate(long ID){
-        //history(履歴テーブル)SELECT文
-        SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
-        db.rawQuery(DatabaseContract.Coordinate.SELECT_SQL,new String[] { String.valueOf(ID) });
-
+    @NonNull
+    public CoordinateListDto selectCoordinate(long ID){
+        try(
+                SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+                Cursor cursor = db.rawQuery(DatabaseContract.Coordinate.SELECT_SQL,new String[]{String.valueOf(ID)})
+        ) {
+            return CoordinateListDto.create(cursor);
+        }
     }
 
+    /**
+     * 座標テーブルInsert
+     * @param number_of_history
+     * @param coordinate_x
+     * @param coordinate_y
+     */
     public void insertCoordinate(long number_of_history,
                                  double coordinate_x,
                                  double coordinate_y){
-        //history(履歴テーブル)INSERT文
         ContentValues cv = new ContentValues();
         cv.put(DatabaseContract.Coordinate.COLUMN_NUMBER_OF_HISTORY, number_of_history);
         cv.put(DatabaseContract.Coordinate.COLUMN_COORDINATE_X, coordinate_x);
@@ -117,6 +124,25 @@ public class WalkRecordDao {
 
     }
 
+    /**
+     * 座標テーブルInsert
+     * @param historyId
+     * @param latLng
+     */
+    public void insertCoordinate(long historyId,
+                                 LatLng latLng){
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseContract.Coordinate.COLUMN_NUMBER_OF_HISTORY, historyId);
+        cv.put(DatabaseContract.Coordinate.COLUMN_COORDINATE_X, latLng.latitude);
+        cv.put(DatabaseContract.Coordinate.COLUMN_COORDINATE_Y, latLng.longitude);
+        SQLiteDatabase db = dataBaseHelper.getWritableDatabase();
+        db.insert(DatabaseContract.Coordinate.TABLE_NAME,null,cv);
+
+    }
+    /**
+     * 座標テーブルDelete
+     * @param ID
+     */
     public void deleteCoordinate(long ID){
         //history(履歴テーブル)DELETE文
         SQLiteDatabase db = dataBaseHelper.getWritableDatabase();

@@ -316,6 +316,8 @@ private static final String TAG = "MainActivity";
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        PolylineOptions option = PolyLineOptionsFactory.create();
+        mMap.addPolyline(option);
 
 //        // 位置座標のインスタンスを作成(緯度、経度)
 //        // ダミー
@@ -523,12 +525,12 @@ private static final String TAG = "MainActivity";
                 Log.d(TAG, "saveConfirm：" + saveConfirm());
                 // 保存可能な場合は散歩履歴をインサート
                 if(saveConfirm()) {
-                    walkHistoryNum = (int)insertWalkRecord();
+                    walkHistoryNum = (int)insertWalkRecord(currentLatLng);
                     Log.d(TAG, "■散歩履歴インサート（レコードNo）：" + walkHistoryNum);
                 }
                 mFirst = !mFirst;
-                // 2回目以降の位置取得の場合
             } else {
+                // 2回目以降の位置取得の場合
                 // 移動線を描画
                 //drawTrace(latlng);
                 drawTrace(currentLatLng);
@@ -776,23 +778,14 @@ private static final String TAG = "MainActivity";
     /**
      * テーブルに直接レコードを追加する（コンテンツプロバイダを使わない場合）
      */
-    public long insertWalkRecord() {
+    public long insertWalkRecord(LatLng latLng) {
         if (walkRecordDao == null) {
             walkRecordDao = new WalkRecordDao(getApplicationContext());
         }
         Log.d(TAG, "■履歴一覧ダミーデータをインサート");
         // ダミー値
 
-        final long historyId = walkRecordDao.insertHistory("20181111", "20181111", 4, 10.0, 1000);
-
-        walkRecordDao.insertCoordinate(historyId, 35.712206, 139.706787);
-        walkRecordDao.insertCoordinate(historyId, 36.712206, 140.706787);
-        walkRecordDao.insertCoordinate(historyId, 37.712206, 141.706787);
-        walkRecordDao.insertCoordinate(historyId, 38.712206, 142.706787);
-        walkRecordDao.insertCoordinate(historyId, 39.712206, 143.706787);
-        walkRecordDao.insertCoordinate(historyId, 40.712206, 144.706787);
-
-        return historyId;
+        return walkRecordDao.insertHistory("20181111", "20181111", 4, 10.0, 1000);
     }
 
     /**

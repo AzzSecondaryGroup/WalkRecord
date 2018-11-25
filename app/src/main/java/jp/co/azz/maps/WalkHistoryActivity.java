@@ -1,7 +1,11 @@
 package jp.co.azz.maps;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 
 import java.util.List;
 
@@ -15,7 +19,7 @@ import jp.co.azz.maps.databases.WalkRecordDao;
  * （DBをコンテンツプロバイダとして公開して、CursorLoaderで非同期で取得する）
  */
 //public class WalkHistoryActivity extends ListActivity  implements LoaderManager.LoaderCallbacks<Cursor> {
-public class WalkHistoryActivity extends ListActivity {
+public class WalkHistoryActivity extends ListActivity implements AdapterView.OnItemClickListener {
     private WalkRecordAdapter mAdapter;
 
     @Override
@@ -23,17 +27,30 @@ public class WalkHistoryActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_walk_history);
 
+
 //        mAdapter = new WalkRecordAdapter(this, null, 0);
 //        setListAdapter(mAdapter);
 
 
+        // リスナー
+        // 各履歴タップ時
+        this.getListView().setOnItemClickListener(this);
+
         //一旦手動でDBから取得
 //-----------------------------------------------
         WalkRecordDao walkRecordDao = new WalkRecordDao(this);
-        List<HistoryDto> histrys = walkRecordDao.selectHistory();
-        mAdapter = new WalkRecordAdapter(this, 0, histrys);
+        List<HistoryDto> historys = walkRecordDao.selectHistory();
+        mAdapter = new WalkRecordAdapter(this, 0, historys);
         setListAdapter(mAdapter);
 
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent intent = new Intent(this.getApplicationContext(), DetailActivity.class);
+        Log.d("クリック", "pos:"+position+ " id:"+id);
+        intent.putExtra("historyId", id);
+        startActivity(intent);
     }
 
 //    /**

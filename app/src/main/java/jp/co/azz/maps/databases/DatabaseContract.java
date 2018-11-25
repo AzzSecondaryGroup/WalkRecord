@@ -35,10 +35,14 @@ public final class DatabaseContract {
 
         //history(履歴テーブル)SELECT文
         public static final String SELECT_SQL =
-                "select " +" * "+" from " + TABLE_NAME
-                        + " where " + _ID +" =( "
-                        + " select max( "+_ID + " ) "
-                        + _ID + " from history)";
+                "select " +" * "+" from " + TABLE_NAME;
+
+        // TODO なぜMax指定？
+//        public static final String SELECT_SQL =
+//                "select " +" * "+" from " + TABLE_NAME
+//                        + " where " + _ID +" =( "
+//                        + " select max( "+_ID + " ) "
+//                        + _ID + " from history)";
     }
 
     public static abstract class Coordinate implements BaseColumns  {

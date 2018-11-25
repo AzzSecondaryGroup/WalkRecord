@@ -31,25 +31,26 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.co.azz.maps.databases.CoordinateDto;
+import jp.co.azz.maps.databases.CoordinateListDto;
 import jp.co.azz.maps.databases.DatabaseContract;
 import jp.co.azz.maps.databases.DatabaseHelper;
 import jp.co.azz.maps.databases.WalkRecordDao;
 
-public class DetailActivity extends FragmentActivity
+public class DetailActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private DatabaseHelper helper;
-    private SQLiteDatabase db;
+    private WalkRecordDao walkRecordDao;
+    private long historyId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
-        db = helper.getWritableDatabase();
+        walkRecordDao = new WalkRecordDao(getApplicationContext());
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.history_detail);
         Toolbar toolbar = findViewById(R.id.toolbar);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -65,11 +66,11 @@ public class DetailActivity extends FragmentActivity
         MapFragment mapFragment = MapFragment.newInstance();
 
         // MapViewをMapFragmentに変更する
-//        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-//        fragmentTransaction.add(R.id.mapView, mapFragment);
-//        fragmentTransaction.commit();
-//
-//        mapFragment.getMapAsync(this);
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.add(R.id.mapFragment, mapFragment);
+        fragmentTransaction.commit();
+
+        mapFragment.getMapAsync(this);
 
     }
 
@@ -130,43 +131,48 @@ public class DetailActivity extends FragmentActivity
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        PolylineOptions polylineOptions = new PolylineOptions();
-        polylineOptions.color(Color.RED);
-        polylineOptions.width(10);
+        mMap = googleMap;
 
-//        List<LatLng> coordinates = getCoordinates(historyId);
+        Bundle extras = this.getIntent().getExtras();
+        long historyId = (long)extras.get("historyId");
+        Log.d("詳細","historyId="+historyId);
+
+        CoordinateListDto coordinates = walkRecordDao.selectCoordinate(historyId);
+
+        PolylineOptions option = PolyLineOptionsFactory.create(coordinates.latLngs());
+        mMap.addPolyline(option);
+
+        CoordinateDto cameraPosition = coordinates.cameraPosition();
+        CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(
+                cameraPosition.latLng(), 16);
+        mMap.moveCamera(cUpdate);
+    }
+
+//    private List<LatLng> getCoordinates (String historyId) {
 //
-//        if (coordinates.size() > 0) {
-//            polylineOptions.addAll(coordinates);
-//            mMap.addPolyline(polylineOptions);
+//        Cursor cursor = db.query(
+//                DatabaseContract.Coordinate.TABLE_NAME // table name
+//                ,null // fields
+//                ,DatabaseContract.Coordinate.COLUMN_NUMBER_OF_HISTORY +" = ?" // where
+//                ,new String[]{historyId} // where args
+//                ,null // group by
+//                ,null // having
+//                ,DatabaseContract.Coordinate._ID // order by
+//        );
+//
+//        List<LatLng> coordinates = new ArrayList<>();
+//        Log.v("test","before");
+//        while (cursor.moveToNext()) {
+//            double x =
+//                    cursor.getDouble(cursor.getColumnIndex(DatabaseContract.Coordinate.COLUMN_COORDINATE_X));
+//            double y =
+//                    cursor.getDouble(cursor.getColumnIndex(DatabaseContract.Coordinate.COLUMN_COORDINATE_Y));
+//            Log.v("test", "x:"+x+",y:"+y);
+//            coordinates.add(new LatLng(x,y));
+//
 //        }
-    }
-
-    private List<LatLng> getCoordinates (String historyId) {
-
-        Cursor cursor = db.query(
-                DatabaseContract.Coordinate.TABLE_NAME // table name
-                ,null // fields
-                ,DatabaseContract.Coordinate.COLUMN_NUMBER_OF_HISTORY +" = ?" // where
-                ,new String[]{historyId} // where args
-                ,null // group by
-                ,null // having
-                ,DatabaseContract.Coordinate._ID // order by
-        );
-
-        List<LatLng> coordinates = new ArrayList<>();
-        Log.v("test","before");
-        while (cursor.moveToNext()) {
-            double x =
-                    cursor.getDouble(cursor.getColumnIndex(DatabaseContract.Coordinate.COLUMN_COORDINATE_X));
-            double y =
-                    cursor.getDouble(cursor.getColumnIndex(DatabaseContract.Coordinate.COLUMN_COORDINATE_Y));
-            Log.v("test", "x:"+x+",y:"+y);
-            coordinates.add(new LatLng(x,y));
-
-        }
-        Log.v("test","after");
-
-        return coordinates;
-    }
+//        Log.v("test","after");
+//
+//        return coordinates;
+//    }
 }
