@@ -85,7 +85,7 @@ public class WalkRecordAdapter extends ArrayAdapter<HistoryDto> {
 
         startTime.setText(String.valueOf(history.getStartDate()));
         endTime.setText(String.valueOf(history.getEndDate()));
-        distance.setText(String.valueOf(history.getDistance()));
+        distance.setText(String.valueOf(history.getKilometer()));
         step.setText(String.valueOf(history.getNumberOfSteps()));
         calorie.setText(String.valueOf(history.getCalorie()));
 

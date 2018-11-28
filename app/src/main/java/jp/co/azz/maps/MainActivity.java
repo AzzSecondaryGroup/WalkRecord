@@ -22,9 +22,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Chronometer;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -50,7 +50,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.co.azz.maps.databases.DatabaseContract;
 import jp.co.azz.maps.databases.DatabaseHelper;
 import jp.co.azz.maps.databases.HistoryDto;
 import jp.co.azz.maps.databases.WalkRecordDao;
@@ -59,7 +58,7 @@ import jp.co.azz.maps.databases.WalkRecordDao;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
-        ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
+        ConnectionCallbacks, OnConnectionFailedListener, LocationListener, View.OnClickListener {
 //        LoaderManager.LoaderCallbacks<Address> {
 private static final String TAG = "MainActivity";
 
@@ -144,7 +143,7 @@ private static final String TAG = "MainActivity";
             Log.d(TAG, "　id：" + historyDto.getId());
             Log.d(TAG, "　開始日時：" + historyDto.getStartDate());
             Log.d(TAG, "　終了日時：" + historyDto.getEndDate());
-            Log.d(TAG, "　距離：" + historyDto.getDistance());
+            Log.d(TAG, "　距離：" + historyDto.getKilometer());
             Log.d(TAG, "　歩数：" + historyDto.getNumberOfSteps());
             Log.d(TAG, "　カロリー：" + historyDto.getCalorie());
         }
@@ -181,38 +180,7 @@ private static final String TAG = "MainActivity";
         // DBが存在しない場合はこのタイミングで作成される
         dbHelper = new DatabaseHelper(this);
 
-        ToggleButton toggleButton = (ToggleButton) findViewById(R.id.toggleButton);
-        // 初期表示はOFF
-        toggleButton.setChecked(false);
-
-        //ToggleのCheckが変更したタイミングで呼び出されるリスナー
-        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // トグルキーが変更された際に呼び出される
-                // ONになった場合
-                if (isChecked) {
-                    Log.d(TAG, "■経路取得開始");
-//                    startChronometer();
-                    mStart = true;
-                    mFirst = true;
-                    mStop = false;
-                    mMeter = 0.0;
-                    mRunList.clear();
-
-                } else {
-//                    stopChronometer();
-                    mStop = true;
-                    // 速度計算は今回不要
-//                    calcSpeed();
-                    // TODO 開始後保存をすぐに行うから権限確認の処理は開始後に必要かも
-//                    saveConfirm();
-                    mStart = false;
-                }
-            }
-        });
-
-
+        this.viewSetting();
 
 //        // MapFragmentの生成
 //        MapFragment mapFragment = MapFragment.newInstance();
@@ -302,9 +270,6 @@ private static final String TAG = "MainActivity";
             startActivity(intent);
         } else if (id == R.id.setting) {
             Intent intent = new Intent(getApplication(), SettingActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.walk_detail) {
-            Intent intent = new Intent(getApplication(), DetailActivity.class);
             startActivity(intent);
         }
 
@@ -495,8 +460,6 @@ private static final String TAG = "MainActivity";
         //マーカー設定
         // TODO　マーカーはどうするか後で検討
         mMap.clear();
-        //このインスタンスは不要のため、コメントアウト
-        // LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
         MarkerOptions options = new MarkerOptions();
         //options.position(latlng);
         options.position(currentLatLng);
@@ -512,27 +475,16 @@ private static final String TAG = "MainActivity";
             // 初回スタート時
             if (mFirst) {
                 Log.d(TAG, "■スタート後初回の位置情報インサート");
-// 住所情報を表示しないので不要
-//                Bundle args = new Bundle();
-//                args.putDouble("lat", location.getLatitude());
-//                args.putDouble("lon", location.getLongitude());
-//
-//                // LoaderManagerのインスタンスを取得（現在地の緯度、経度から住所を取得）
-//                // restartLoaderはローダが現在実行中なら自動的に中断してくれる
-//                // restartLoaderまたはinitLoaderを実行するとonCreateLoaderが呼ばれる
-//                getLoaderManager().restartLoader(ADDRESSLOADER_ID, args, this);
-//
                 Log.d(TAG, "saveConfirm：" + saveConfirm());
                 // 保存可能な場合は散歩履歴をインサート
                 if(saveConfirm()) {
-                    walkHistoryNum = (int)insertWalkRecord(currentLatLng);
+                    walkHistoryNum = (int) walkStart();
                     Log.d(TAG, "■散歩履歴インサート（レコードNo）：" + walkHistoryNum);
                 }
                 mFirst = !mFirst;
             } else {
                 // 2回目以降の位置取得の場合
                 // 移動線を描画
-                //drawTrace(latlng);
                 drawTrace(currentLatLng);
                 // 走行距離を累積
                 sumDistance();
@@ -541,7 +493,6 @@ private static final String TAG = "MainActivity";
                 updateWalkRecord(currentLatLng);
             }
         }
-
     }
 
     /**
@@ -586,15 +537,6 @@ private static final String TAG = "MainActivity";
         main_distance.setText(String.format("%.2f"+" km", disMeter));
     }
 
-//    /**
-//     * 移動速度の取得
-//     */
-//    private void calcSpeed() {
-//        sumDistance();
-//        mSpeed = (mMeter/1000) / (mElapsedTime /1000) * 60 * 60;
-//    }
-
-
     /**
      * 保存処理を行うための権限確認
      */
@@ -629,9 +571,6 @@ private static final String TAG = "MainActivity";
                 requestWriteExternalStorage();
             }
         } else {
-            // 保存するかどうかの確認ダイアログは不要
-            // saveConfirmDialog();
-
             isPossibleSave = true;
         }
         return isPossibleSave;
@@ -643,25 +582,6 @@ private static final String TAG = "MainActivity";
                 MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
 
     }
-
-// 保存するかどうか確認するダイアログは今回不要
-//    /**
-//     * 保存するかどうかを確認するダイアログを表示
-//     */
-//    private void saveConfirmDialog() {
-//        String message ="時間:";
-//        TextView main_distance = (TextView) findViewById(R.id.main_distance);
-//
-//        message = message + mChronometer.getText().toString() + " " +
-//                "距離" + main_distance.getText() + "\n" +
-//                "時速" + String.format("%.2f"+" km", mSpeed);
-//
-//        DialogFragment newFragment = SaveConfirmDialogFragment.newInstance(
-//                R.string.save_confirm_dialog_title, message);
-//
-//        newFragment.show(getFragmentManager(), "dialog");
-//
-//    }
 
     /**
      * Activityがフォアグラウンドでなくなるとき
@@ -704,88 +624,22 @@ private static final String TAG = "MainActivity";
         // Do nothing
     }
 
-// 住所取得ローダは使わないので不要
-//    /**
-//     * LoaderManagerのインスタンス取得時の処理（ローダが新しく生成された時）
-//     *
-//     * @param id
-//     * @param args
-//     * @return
-//     */
-//    @Override
-//    public Loader<Address> onCreateLoader(int id, Bundle args) {
-//        double lat = args.getDouble("lat");
-//        double lon = args.getDouble("lon");
-//
-//        // 緯度、経度からAddressTaskLoaderを生成する
-//        return new AddressTaskLoader(this, lat,lon);
-//    }
-//
-//    /**
-//     * ローダ内の処理が終了したときの処理
-//     * AddressTaskLoader.loadInBackgroundからAddressオブジェクトが渡される
-//     *
-//     * @param loader
-//     * @param result
-//     */
-//    @Override
-//    public void onLoadFinished(Loader<Address> loader, Address result) {
-//        if (result != null) {
-//            StringBuilder sb = new StringBuilder();
-//            for (int i = 1; i < result.getMaxAddressLineIndex() + 1; i++) {
-//                String item = result.getAddressLine(i);
-//                if (item == null) {
-//                    break;
-//                }
-//
-//                sb.append(item);
-//            }
-//            TextView address = (TextView) findViewById(R.id.address);
-//
-//            address.setText(sb.toString());
-//        }
-//    }
-//
-//    /**
-//     * ローダがリセットされたときの処理（restartLoaderが呼ばれた時など）
-//     * @param loader
-//     */
-//    @Override
-//    public void onLoaderReset(Loader<Address> loader) {
-//
-//    }
-
     /**
-     * コンテンツプロバイダを経由してテーブルにレコードを追加する
-     * データベースの取得とクローズが不要
+     * 記録を開始する
      */
-    public void saveWalkRecordViaCTP(){
-
-//        String strDate = new SimpleDateFormat("yyyy/MM/dd").format(mStartTimeMillis);
-//
-//        TextView txtAddress = (TextView)findViewById(R.id.address);
-//
-//        ContentValues values = new ContentValues();
-//        values.put(DatabaseHelper.COLUMN_DATE, strDate);
-//        values.put(DatabaseHelper.COLUMN_ELAPSEDTIME,mChronometer.getText().toString());
-//        values.put(DatabaseHelper.COLUMN_DISTANCE, mMeter);
-//        values.put(DatabaseHelper.COLUMN_SPEED, mSpeed);
-//        values.put(DatabaseHelper.COLUMN_ADDRESS, txtAddress.getText().toString());
-//        Uri uri = getContentResolver().insert(JogRecordContentProvider.CONTENT_URI, values);
-//        showToast("データを保存しました");
-    }
-
-    /**
-     * テーブルに直接レコードを追加する（コンテンツプロバイダを使わない場合）
-     */
-    public long insertWalkRecord(LatLng latLng) {
+    public long walkStart() {
         if (walkRecordDao == null) {
             walkRecordDao = new WalkRecordDao(getApplicationContext());
         }
         Log.d(TAG, "■履歴一覧ダミーデータをインサート");
-        // ダミー値
 
-        return walkRecordDao.insertHistory("20181111", "20181111", 4, 10.0, 1000);
+        String startTime = AppContract.now();
+        {
+            TextView startTimeView = this.findViewById(R.id.main_start_time);
+            startTimeView.setText(startTime);
+        }
+
+        return walkRecordDao.insertHistory(startTime, "", 4, 10.0, 1000);
     }
 
     /**
@@ -800,14 +654,63 @@ private static final String TAG = "MainActivity";
         Log.d(TAG, "■座標件数"+walkRecordDao.selectCoordinateCount());
 
         Log.d(TAG, "■履歴一覧ダミーデータを更新");
+
+
+        String endTime = AppContract.now();
+        TextView endTimeView = this.findViewById(R.id.main_end_time);
+        endTimeView.setText(endTime);
         // ダミー値
-        walkRecordDao.updateHistory(walkHistoryNum, "20181111", 4, mMeter);
-
+        walkRecordDao.updateHistory(walkHistoryNum, endTime, 4, mMeter);
     }
-
 
     private void showToast(String msg) {
         Toast error = Toast.makeText(this, msg, Toast.LENGTH_LONG);
         error.show();
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.toggleButton:
+                ToggleButton button = (ToggleButton) view;
+                // トグルキーが変更された際に呼び出される
+                // ONになった場合
+                if (button.isChecked()) {
+                    Log.d(TAG, "■経路取得開始");
+//                    startChronometer();
+                    mStart = true;
+                    mFirst = true;
+                    mStop = false;
+                    mMeter = 0.0;
+                    mRunList.clear();
+
+                } else {
+//                    stopChronometer();
+                    mStop = true;
+                    // 速度計算は今回不要
+//                    calcSpeed();
+                    // TODO 開始後保存をすぐに行うから権限確認の処理は開始後に必要かも
+//                    saveConfirm();
+                    mStart = false;
+                    TextView endTime = this.findViewById(R.id.main_end_time);
+                    endTime.setVisibility(View.VISIBLE);
+                }
+        }
+    }
+
+    /**
+     * 初期表示時のView周りの設定を行う
+     */
+    private void viewSetting() {
+        // メイン画面と詳細画面で画面共用なので、メイン画面で描画不要な項目を消す
+        TextView endTime = this.findViewById(R.id.main_end_time);
+        endTime.setVisibility(View.INVISIBLE);
+
+        // 初期表示はOFF
+        ToggleButton toggleButton = (ToggleButton) findViewById(R.id.toggleButton);
+        toggleButton.setChecked(false);
+
+        // トグルボタンにリスナーを追加
+        toggleButton.setOnClickListener(this);
     }
 }

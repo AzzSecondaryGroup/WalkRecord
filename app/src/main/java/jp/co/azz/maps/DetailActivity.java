@@ -8,11 +8,15 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,6 +27,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import jp.co.azz.maps.databases.CoordinateDto;
 import jp.co.azz.maps.databases.CoordinateListDto;
+import jp.co.azz.maps.databases.HistoryDto;
 import jp.co.azz.maps.databases.WalkRecordDao;
 
 public class DetailActivity extends AppCompatActivity
@@ -30,7 +35,6 @@ public class DetailActivity extends AppCompatActivity
 
     private GoogleMap mMap;
     private WalkRecordDao walkRecordDao;
-    private long historyId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +64,7 @@ public class DetailActivity extends AppCompatActivity
 
         mapFragment.getMapAsync(this);
 
-        Bundle extras = this.getIntent().getExtras();
-        long historyId = (long)extras.get("historyId");
-        walkRecordDao.selectByIdFromHistory(historyId);
+        this.viewSetting();
     }
 
     @Override
@@ -100,23 +102,32 @@ public class DetailActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+
         int id = item.getItemId();
+        Intent intent = null;
 
-        if (id == R.id.walk_history) {
-            Intent intent = new Intent(getApplication(), WalkHistoryActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.calorie_calculation) {
-            Intent intent = new Intent(getApplication(), CalorieCalculationActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.setting) {
-            Intent intent = new Intent(getApplication(), SettingActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.walk_detail) {
-
+        switch (id) {
+            case R.id.walk_history:
+                intent = new Intent(getApplication(), WalkHistoryActivity.class);
+                break;
+            case R.id.calorie_calculation:
+                intent = new Intent(getApplication(), CalorieCalculationActivity.class);
+                break;
+            case R.id.setting:
+                intent = new Intent(getApplication(), SettingActivity.class);
+                break;
+            case R.id.main:
+                intent = new Intent(getApplication(), MainActivity.class);
+                break;
+            default:
+                Log.d(DetailActivity.class.getName(), "未設定の遷移先が指定されました");
+                return false;
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        startActivity(intent);
+
         return true;
     }
 
@@ -139,31 +150,31 @@ public class DetailActivity extends AppCompatActivity
         mMap.moveCamera(cUpdate);
     }
 
-//    private List<LatLng> getCoordinates (String historyId) {
-//
-//        Cursor cursor = db.query(
-//                DatabaseContract.Coordinate.TABLE_NAME // table name
-//                ,null // fields
-//                ,DatabaseContract.Coordinate.COLUMN_NUMBER_OF_HISTORY +" = ?" // where
-//                ,new String[]{historyId} // where args
-//                ,null // group by
-//                ,null // having
-//                ,DatabaseContract.Coordinate._ID // order by
-//        );
-//
-//        List<LatLng> coordinates = new ArrayList<>();
-//        Log.v("test","before");
-//        while (cursor.moveToNext()) {
-//            double x =
-//                    cursor.getDouble(cursor.getColumnIndex(DatabaseContract.Coordinate.COLUMN_COORDINATE_X));
-//            double y =
-//                    cursor.getDouble(cursor.getColumnIndex(DatabaseContract.Coordinate.COLUMN_COORDINATE_Y));
-//            Log.v("test", "x:"+x+",y:"+y);
-//            coordinates.add(new LatLng(x,y));
-//
-//        }
-//        Log.v("test","after");
-//
-//        return coordinates;
-//    }
+    /**
+     * 初期表示時のView周りの設定を行う
+     */
+    private void viewSetting() {
+        Bundle extras = this.getIntent().getExtras();
+        long historyId = (long)extras.get("historyId");
+        HistoryDto history = walkRecordDao.selectByIdFromHistory(historyId);
+
+        // 詳細画面はメイン画面を使いまわしている。
+        // ただし、ボタンは不要なので消す
+        ToggleButton toggleButton = findViewById(R.id.toggleButton);
+
+        TextView distance = this.findViewById(R.id.main_distance);
+        distance.setText(String.format("%.2f"+" km", history.getKilometer()));
+
+        TextView calorie = this.findViewById(R.id.main_calorie);
+        calorie.setText(String.valueOf(history.getCalorie()));
+
+        TextView start = this.findViewById(R.id.main_start_time);
+        start.setText(history.getStartDate());
+
+        TextView end = this.findViewById(R.id.main_end_time);
+        end.setText(history.getEndDate());
+
+        // メイン画面と詳細画面で画面共用なので、画面で描画不要な項目を消す
+        toggleButton.setVisibility(View.INVISIBLE);
+    }
 }

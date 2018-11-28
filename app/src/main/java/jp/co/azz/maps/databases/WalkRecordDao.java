@@ -10,7 +10,9 @@ import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -32,16 +34,7 @@ public class WalkRecordDao {
             Cursor cursor = db.rawQuery(DatabaseContract.History.SELECT_SQL,null)
         ) {
             while(cursor.moveToNext()) {
-
-                historyList.add(new HistoryDto(
-                        cursor.getInt(cursor.getColumnIndex(DatabaseContract.History._ID)),
-                        cursor.getString(cursor.getColumnIndex(DatabaseContract.History.COLUMN_START_DATE)),
-                        cursor.getString(cursor.getColumnIndex(DatabaseContract.History.COLUMN_END_DATE)),
-                        cursor.getInt(cursor.getColumnIndex(DatabaseContract.History.COLUMN_NUMBER_OF_STEPS)),
-                        cursor.getDouble(cursor.getColumnIndex(DatabaseContract.History.COLUMN_DISTANCE)),
-                        cursor.getInt(cursor.getColumnIndex(DatabaseContract.History.COLUMN_CALOLIE))
-                ));
-
+                historyList.add(new HistoryDto(cursor));
             }
         }
         return historyList;
