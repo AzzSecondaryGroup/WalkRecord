@@ -2,6 +2,8 @@ package jp.co.azz.maps.databases;
 
 import android.database.Cursor;
 
+import java.math.BigDecimal;
+
 import jp.co.azz.maps.databases.DatabaseContract;
 
 public class HistoryDto {
@@ -62,8 +64,12 @@ public class HistoryDto {
         return numberOfSteps;
     }
 
-    public double getDistance() {
-        return distance;
+    public String getKilometer() {
+        if (this.distance > 0) {
+            BigDecimal distance = new BigDecimal(this.distance);
+            return distance.divide(new BigDecimal(1000)).doubleValue() + "㎞";
+        }
+        return "0㎞";
     }
 
     public int getCalorie() {
