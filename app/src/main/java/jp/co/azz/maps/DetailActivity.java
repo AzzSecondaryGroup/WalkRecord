@@ -163,7 +163,7 @@ public class DetailActivity extends AppCompatActivity
         ToggleButton toggleButton = findViewById(R.id.toggleButton);
 
         TextView distance = this.findViewById(R.id.main_distance);
-        distance.setText(String.format("%.2f"+" km", history.getKilometer()));
+        distance.setText(history.getKilometer());
 
         TextView calorie = this.findViewById(R.id.main_calorie);
         calorie.setText(String.valueOf(history.getCalorie()));
