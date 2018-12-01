@@ -65,4 +65,30 @@ public final class DatabaseContract {
                         +" = ? " ;
 
     }
+
+    public static abstract class Setting implements BaseColumns {
+        public static final String TABLE_NAME = "settings";
+        public static final String COLUMN_KEY = "key";
+        public static final String COLUMN_VALUE = "value";
+
+        static final String CREATE_TABLE_SQL =
+                "create table " + TABLE_NAME + " "
+                        + "(" + _ID +" INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        + COLUMN_KEY + " TEXT NOT NULL,"
+                        + COLUMN_VALUE + " TEXT NOT NULL" +
+                        ")";
+        static final String SETTING_INTERVAL = "interval";
+
+        public static void create(SQLiteDatabase db) {
+            db.execSQL(DatabaseContract.Setting.CREATE_TABLE_SQL);
+            insertDefault(db);
+        }
+
+        private static void insertDefault(SQLiteDatabase db) {
+            ContentValues cv = new ContentValues();
+            cv.put(COLUMN_KEY, "interval");
+            cv.put(COLUMN_VALUE, 500);
+            db.insert(TABLE_NAME, null, cv);
+        }
+    }
 }
