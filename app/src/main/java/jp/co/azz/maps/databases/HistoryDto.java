@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 
 import jp.co.azz.maps.databases.DatabaseContract;
 
+import static java.math.BigDecimal.ROUND_DOWN;
+
 public class HistoryDto {
 
     private long id;
@@ -67,7 +69,7 @@ public class HistoryDto {
     public String getKilometer() {
         if (this.distance > 0) {
             BigDecimal distance = new BigDecimal(this.distance);
-            return distance.divide(new BigDecimal(1000)).doubleValue() + "㎞";
+            return distance.divide(new BigDecimal(1000)).setScale(5, ROUND_DOWN).doubleValue() + "㎞";
         }
         return "0㎞";
     }
