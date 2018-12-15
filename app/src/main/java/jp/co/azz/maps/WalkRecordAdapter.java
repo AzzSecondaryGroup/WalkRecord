@@ -69,8 +69,6 @@ public class WalkRecordAdapter extends ArrayAdapter<HistoryDto> {
         // 各行のデータ
         View rowView = convertView;
 
-        // 特定行(position)のデータを得る
-        HistoryDto item = (HistoryDto)getItem(position);
         // convertViewは使いまわされている可能性があるのでnullの時だけ新しく作る
         if (null == rowView) rowView = mLayoutInflater.inflate(R.layout.walk_record_item, null);
 
@@ -79,6 +77,7 @@ public class WalkRecordAdapter extends ArrayAdapter<HistoryDto> {
         TextView distance = (TextView)rowView.findViewById(R.id.distance);
         TextView step = (TextView)rowView.findViewById(R.id.step_cnt);
         TextView calorie = (TextView)rowView.findViewById(R.id.calorie);
+        TextView historyId = (TextView)rowView.findViewById(R.id.history_id);
 
         // 特定行(position)のデータを得る
         HistoryDto history = (HistoryDto)getItem(position);
@@ -88,6 +87,7 @@ public class WalkRecordAdapter extends ArrayAdapter<HistoryDto> {
         distance.setText(String.valueOf(history.getKilometer()));
         step.setText(String.valueOf(history.getNumberOfSteps()));
         calorie.setText(String.valueOf(history.getCalorie()));
+        historyId.setText(String.valueOf(history.getId()));
 
         return rowView;
     }
