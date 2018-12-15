@@ -10,6 +10,7 @@ import android.location.Location;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -320,6 +321,9 @@ private static final String TAG = "MainActivity";
                 requestAccessFineLocation();
             }
         }
+
+        //GPSがOFFの場合、位置情報モードが"GPSのみ"の場合、変更するように促すダイアログを出す。
+        isGpsEnabled();
     }
     private void requestAccessFineLocation() {
         ActivityCompat.requestPermissions(this,
@@ -676,6 +680,14 @@ private static final String TAG = "MainActivity";
                 // トグルキーが変更された際に呼び出される
                 // ONになった場合
                 if (button.isChecked()) {
+
+                    //GPSがOFFの場合、位置情報モードが"GPSのみ"の場合、変更するように促すダイアログを出す。
+                    if (!isGpsEnabled()) {
+                        //トグルボタンをSTARTに戻す。
+                        button.setTextOff("START");
+                        button.setChecked(false);
+                    }
+
                     Log.d(TAG, "■経路取得開始");
 //                    startChronometer();
                     int interval = walkRecordDao.getInterval();
@@ -715,4 +727,52 @@ private static final String TAG = "MainActivity";
         // トグルボタンにリスナーを追加
         toggleButton.setOnClickListener(this);
     }
+
+/**
+ * GPSの状態が有効か無効かを判断する。
+ * GPSがOFFの場合、GPSをONにするよう促す、ダイアログを出す。
+ * PSの位置情報モードが"GPSのみ利用" の場合ダイアログを出す。
+ */
+    private boolean isGpsEnabled() {
+
+        // GPSの状態を取得
+        String gpsStatus = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+
+        if (!gpsStatus.contains("gps") && !gpsStatus.contains("network") ) {
+            //GPSが無効だった場合
+            //ダイアログでGPSをONにするように促すメッセージを出す。
+            new AlertDialog.Builder(this)
+                    .setTitle("GPS機能が無効です")
+                    .setMessage("このアプリを使用するためには、GPS機能をONにし\n"+
+                                "位置情報モードを「GPSのみ」以外にしてください。")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // OK button pressed
+                            //何もしない
+                        }
+                    })
+                    .show();
+                    return false;
+        } else if (gpsStatus.contains("gps") && !gpsStatus.contains("network")) {
+            //GPSの位置情報モードが"GPSのみ利用" の場合
+            //ダイアログでGPSの位置情報モードが"GPSのみ利用" 以外にするようメッセージを出す。
+            new AlertDialog.Builder(this)
+                    .setTitle("GPSの位置情報モードが 「GPSのみ」となっています。")
+                    .setMessage("このアプリを使用するためには、位置情報モードを\n" +
+                            "「GPSのみ」以外にしてください。")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // OK button pressed
+                            //何もしない
+                        }
+                    })
+                    .show();
+                    return false;
+        }
+
+        return true;
+    }
+
 }
