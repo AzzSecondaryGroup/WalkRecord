@@ -42,6 +42,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -291,6 +292,19 @@ private static final String TAG = "MainActivity";
 //                new LatLng(35.712206, 139.706787), 15);
 //        mMap.moveCamera(cUpdate);
 
+        // 位置情報アクセス権限のチェック
+        if (ActivityCompat.checkSelfPermission (
+                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+            // 権限がある場合は現在地ボタンを表示する
+            // MyLocationレイヤーを有効に
+            mMap.setMyLocationEnabled(true);
+            // MyLocationButtonを有効に
+            UiSettings settings = mMap.getUiSettings();
+            settings.setMyLocationButtonEnabled(true);
+        } else {
+            return;
+        }
 
 
         // DangerousなPermissionはリクエストして許可をもらわないと使えない
