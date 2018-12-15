@@ -13,10 +13,7 @@ import jp.co.azz.maps.databases.WalkRecordDao;
 
 /**
  * 履歴一覧表示
- * LoaderCallbacksを実装してCursorを取得する
- * （DBをコンテンツプロバイダとして公開して、CursorLoaderで非同期で取得する）
  */
-//public class WalkHistoryActivity extends ListActivity  implements LoaderManager.LoaderCallbacks<Cursor> {
 public class WalkHistoryActivity extends ListActivity implements AdapterView.OnItemClickListener {
     private WalkRecordAdapter mAdapter;
     // 履歴一覧情報格納用
@@ -27,17 +24,10 @@ public class WalkHistoryActivity extends ListActivity implements AdapterView.OnI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_walk_history);
 
-
-//        mAdapter = new WalkRecordAdapter(this, null, 0);
-//        setListAdapter(mAdapter);
-
-
         // リスナー
         // 各履歴タップ時
         this.getListView().setOnItemClickListener(this);
 
-        //一旦手動でDBから取得
-//-----------------------------------------------
         WalkRecordDao walkRecordDao = new WalkRecordDao(this);
         // 散歩履歴情報を取得して一覧に表示
         historys = walkRecordDao.selectHistory();
@@ -57,29 +47,5 @@ public class WalkHistoryActivity extends ListActivity implements AdapterView.OnI
         intent.putExtra("historyId", history.getId());
         startActivity(intent);
     }
-
-//    /**
-//     *
-//     * CursorLoader(ContentProviderから非同期にデータをロードする)を返却
-//     *
-//     * @param id
-//     * @param args
-//     * @return
-//     */
-//    @Override
-//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-//        return new CursorLoader(this,
-//                WalkRecordContentProvider.CONTENT_URI, null, null, null, "_id DESC");
-//    }
-//
-//    @Override
-//    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-//        mAdapter.swapCursor(cursor);
-//    }
-//
-//    @Override
-//    public void onLoaderReset(Loader<Cursor> loader) {
-//        mAdapter.swapCursor(null);
-//    }
 
 }
