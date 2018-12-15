@@ -23,6 +23,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(DatabaseContract.History.CREATE_TABLE_SQL);
         //coordinate(座標テーブル)作成
         db.execSQL(DatabaseContract.Coordinate.CREATE_TABLE_SQL);
+        //setting(設定テーブル)作成
+        DatabaseContract.Setting.create(db);
     }
 
     /**

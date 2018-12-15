@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.DatabaseUtils;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -186,5 +187,42 @@ public class WalkRecordDao {
         SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
         long recodeCount = DatabaseUtils.queryNumEntries(db, DatabaseContract.Coordinate.TABLE_NAME);
         return recodeCount;
+    }
+
+    /**
+     * GPS取得の間隔を取得する
+     * 設定がなければ1000msとしている
+     */
+    @Nullable
+    public int getInterval() {
+
+        SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+        Cursor c = db.query(
+                DatabaseContract.Setting.TABLE_NAME,
+                null,
+                DatabaseContract.Setting.COLUMN_KEY + " = ?",
+                new String[] {DatabaseContract.Setting.SETTING_INTERVAL},
+                null,
+                null,
+                null,
+                null
+        );
+
+        if(c.moveToFirst()){
+            return c.getInt(c.getColumnIndex(DatabaseContract.Setting.COLUMN_VALUE));
+        }
+
+        return 1000;
+    }
+
+    public void updateInterval(int interval){
+        SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseContract.Setting.COLUMN_KEY, "interval");
+        cv.put(DatabaseContract.Setting.COLUMN_VALUE, interval);
+        db.update(DatabaseContract.Setting.TABLE_NAME,
+           cv
+            ,null
+            ,null);
     }
 }

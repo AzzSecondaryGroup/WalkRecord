@@ -25,8 +25,7 @@ public class PolyLineOptionsFactory {
             return PolyLineOptionsFactory.create();
         }
         return PolyLineOptionsFactory.create()
-                .addAll(latLngs)
-                ;
+                .addAll(latLngs);
     }
 
 

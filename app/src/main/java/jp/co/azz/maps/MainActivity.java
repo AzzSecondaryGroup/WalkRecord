@@ -66,7 +66,7 @@ private static final String TAG = "MainActivity";
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 2;
     private static final int ADDRESSLOADER_ID = 0;
     // サンプルはINTERVAL:500(ミリ秒) ,FASTESTINTERVAL:16
-    private static final int INTERVAL = 1000;
+    private static int INTERVAL = 1000;
     private static final int FASTESTINTERVAL = 1000;
 
     private GoogleMap mMap;
@@ -135,6 +135,7 @@ private static final String TAG = "MainActivity";
 
         // ****************** デバッグ用散歩履歴件数表示 ******************
         walkRecordDao = new WalkRecordDao(getApplicationContext());
+
         List<HistoryDto> historyList = walkRecordDao.selectHistory();
         Log.d(TAG, "◆散歩履歴テーブルのダミーデータの件数：" + historyList.size() + "◆");
         if (historyList.size() > 0) {
@@ -655,12 +656,11 @@ private static final String TAG = "MainActivity";
 
         Log.d(TAG, "■履歴一覧ダミーデータを更新");
 
-
         String endTime = AppContract.now();
         TextView endTimeView = this.findViewById(R.id.main_end_time);
         endTimeView.setText(endTime);
         // ダミー値
-        walkRecordDao.updateHistory(walkHistoryNum, endTime, 4, mMeter);
+        walkRecordDao.updateHistory(walkHistoryNum, endTime,4, mMeter);
     }
 
     private void showToast(String msg) {
@@ -678,6 +678,8 @@ private static final String TAG = "MainActivity";
                 if (button.isChecked()) {
                     Log.d(TAG, "■経路取得開始");
 //                    startChronometer();
+                    int interval = walkRecordDao.getInterval();
+                    LOCATION_REQUEST.setInterval(interval);
                     mStart = true;
                     mFirst = true;
                     mStop = false;
