@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.Settings;
@@ -415,6 +416,8 @@ private static final String TAG = "MainActivity";
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.d(TAG, "■Google Playサービスに接続");
+        // 位置情報取得の権限を保持しているかチェック
+        // 権限がない場合は後続処理を行わない
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
@@ -749,15 +752,40 @@ private static final String TAG = "MainActivity";
  */
     private boolean isGpsEnabled() {
 
-        // GPSの状態を取得
-        String gpsStatus = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+        // 位置情報有効か
+        boolean isLocationInvalid = false;
+        // GPSのみになっていないか
+        boolean isGpsOnly = false;
 
-        if (!gpsStatus.contains("gps") && !gpsStatus.contains("network") ) {
-            //GPSが無効だった場合
-            //ダイアログでGPSをONにするように促すメッセージを出す。
+        // GPSの状態を取得
+        // APIレベル19以上の場合
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+            try {
+                int locationMode = Settings.Secure.getInt(getApplicationContext().getContentResolver(), Settings.Secure.LOCATION_MODE);
+                if (locationMode == Settings.Secure.LOCATION_MODE_OFF){
+                    isLocationInvalid = true;
+                } else if (locationMode == Settings.Secure.LOCATION_MODE_SENSORS_ONLY) {
+                    isGpsOnly = true;
+                }
+            } catch (Settings.SettingNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else {
+            String gpsStatus = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+            if (!gpsStatus.contains("gps") && !gpsStatus.contains("network")) {
+                isLocationInvalid = true;
+            } else if (gpsStatus.contains("gps") && !gpsStatus.contains("network")) {
+                isGpsOnly = true;
+            }
+        }
+
+
+        if (isLocationInvalid) {
+            //位置情報が無効だった場合
+            //ダイアログで位置情報をONにするように促すメッセージを出す。
             new AlertDialog.Builder(this)
-                    .setTitle("GPS機能が無効です")
-                    .setMessage("このアプリを使用するためには、GPS機能をONにし\n"+
+                    .setTitle("位置情報機能がOFFになっています")
+                    .setMessage("このアプリを使用するには、位置情報機能をONにして\n"+
                                 "位置情報モードを「GPSのみ」以外にしてください。")
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
@@ -768,12 +796,12 @@ private static final String TAG = "MainActivity";
                     })
                     .show();
                     return false;
-        } else if (gpsStatus.contains("gps") && !gpsStatus.contains("network")) {
+        } else if (isGpsOnly) {
             //GPSの位置情報モードが"GPSのみ利用" の場合
             //ダイアログでGPSの位置情報モードが"GPSのみ利用" 以外にするようメッセージを出す。
             new AlertDialog.Builder(this)
-                    .setTitle("GPSの位置情報モードが 「GPSのみ」となっています。")
-                    .setMessage("このアプリを使用するためには、位置情報モードを\n" +
+                    .setTitle("位置情報モードが 「GPSのみ」になっています")
+                    .setMessage("このアプリを使用するには、位置情報モードを\n" +
                             "「GPSのみ」以外にしてください。")
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">お散歩アプリモック</string>
+    <string name="app_name">お散歩アプリ</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">メニュー</string>
@@ -18,7 +18,7 @@
     <string name="text_off">Start</string>
 
     <string name="wifi_confirm_dialog_title">WIFIをオフにしますか</string>
-    <string name="wifi_confirm_dialog_message">市街地を走ると、WIFIをひろって現在地が飛ぶことがあります</string>
+    <string name="wifi_confirm_dialog_message">散歩途中にWIFIに接続した場合、現在地が正しく取得できないことがあります</string>
     <string name="save_confirm_dialog_title">このお散歩を記録しますか</string>
 
     <string name="alert_dialog_yes">YES</string>
