@@ -10,7 +10,6 @@ import android.location.Location;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -26,7 +25,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -57,17 +55,13 @@ import jp.co.azz.maps.databases.DatabaseHelper;
 import jp.co.azz.maps.databases.HistoryDto;
 import jp.co.azz.maps.databases.WalkRecordDao;
 
-//import android.location.LocationListener;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
         ConnectionCallbacks, OnConnectionFailedListener, LocationListener, View.OnClickListener {
-//        LoaderManager.LoaderCallbacks<Address> {
 private static final String TAG = "MainActivity";
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 2;
-    private static final int ADDRESSLOADER_ID = 0;
     // サンプルはINTERVAL:500(ミリ秒) ,FASTESTINTERVAL:16
     private static int INTERVAL = 1000;
     private static final int FASTESTINTERVAL = 1000;
@@ -87,19 +81,16 @@ private static final String TAG = "MainActivity";
     private List<LatLng> mRunList = new ArrayList<LatLng>();
     private WifiManager wifiManager;
     private boolean mWifiOff = false;
-    private long mStartTimeMillis;
     private double mMeter = 0.0;           // メートル
-    private double mElapsedTime =0.0;        // ミリ秒
-    private double mSpeed = 0.0;
     private DatabaseHelper dbHelper;
     private boolean mStart = false;
     private boolean mFirst = false;
     private boolean mStop = true;   // 開始時は停止
     private boolean wifiAsked = false;
-    private Chronometer mChronometer;
     private WalkRecordDao walkRecordDao;
     private int walkHistoryNum = 0;
     private boolean isFirstMapDisp = true;  // MAP最初の表示かどうか
+    private boolean isLocationAuthorityReady = false;  // 位置情報の権限周りの準備ができているか
 
     /**
      * onPauseの直後に呼ばれる処理
@@ -186,29 +177,6 @@ private static final String TAG = "MainActivity";
 
         this.viewSetting();
 
-//        // MapFragmentの生成
-//        MapFragment mapFragment = MapFragment.newInstance();
-//
-//        // MapViewをMapFragmentに変更する
-//        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-//        fragmentTransaction.add(R.id.mapView, mapFragment);
-//        fragmentTransaction.commit();
-//
-//        mapFragment.getMapAsync(this);
-
-    }
-
-    private void startChronometer() {
-        mChronometer = (Chronometer) findViewById(R.id.chronometer);
-        // 電源ON時からの経過時間の値をベースに
-        mChronometer.setBase(SystemClock.elapsedRealtime());
-        mChronometer.start();
-        mStartTimeMillis=System.currentTimeMillis();
-    }
-    private void stopChronometer() {
-        mChronometer.stop();
-        // ミリ秒
-        mElapsedTime =SystemClock.elapsedRealtime() - mChronometer.getBase();
     }
 
     /**
@@ -218,15 +186,10 @@ private static final String TAG = "MainActivity";
     @Override
     protected void onResume() {
         super.onResume();
-        if (!wifiAsked) {
-            //Log.v("exec wifiAsked","" + wifiAsked);
-            // WiFiをオフにするかどうか確認
-            wifiConfirm();
-            wifiAsked = !wifiAsked;
-        }
 
-        // Google Playサービスに接続する
-        googleApiClient.connect();
+        // バックグラウンドから戻った時にGoogleサービスに接続可能な場合は接続する
+        locationReadyProcess();
+
     }
 
     @Override
@@ -282,6 +245,10 @@ private static final String TAG = "MainActivity";
         return true;
     }
 
+    /**
+     * マップの初期化完了時に呼ばれる処理
+     * @param googleMap
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -294,58 +261,76 @@ private static final String TAG = "MainActivity";
 //                new LatLng(35.712206, 139.706787), 15);
 //        mMap.moveCamera(cUpdate);
 
-        // 位置情報アクセス権限のチェック
-        if (ActivityCompat.checkSelfPermission (
-                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        // 位置情報権限周り判定処理
+        locationAuthorityJudge();
 
-            // 権限がある場合は現在地ボタンを表示する
-            // MyLocationレイヤーを有効に
-            mMap.setMyLocationEnabled(true);
-            // MyLocationButtonを有効に
-            UiSettings settings = mMap.getUiSettings();
-            settings.setMyLocationButtonEnabled(true);
-        } else {
-            return;
-        }
+        // 現在地ボタンを表示
+        setMyLocationButton();
 
+    }
 
+    /**
+     * 位置情報へのアクセス権を確認して必要な処理を行う
+     */
+    private void locationAuthorityJudge() {
+        isLocationAuthorityReady = false;
+
+        // ***** このアプリ自体に位置情報へのアクセス権が設定されているかの確認と権限リクエスト処理 ***** /
         // DangerousなPermissionはリクエストして許可をもらわないと使えない
+        // お散歩アプリに位置情報を使用する権限がない場合
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // お散歩アプリに位置情報へのアクセス許可をしない選択をすでに行っているか
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
                 //一度拒否された時、Rationale（理論的根拠）を説明して、再度許可ダイアログを出すようにする
                 new AlertDialog.Builder(this)
-                        .setTitle("許可が必要です")
-                        .setMessage("移動に合わせて地図を動かすためには、ACCESS_FINE_LOCATIONを許可してください")
+                        .setTitle("アクセス許可が必要です")
+                        .setMessage("移動に合わせて地図を動かすためには、当アプリの位置情報へのアクセスを許可してください")
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // OK button pressed
+                                // このアプリの位置情報へのアクセス権限リクエストのダイアログ表示
                                 requestAccessFineLocation();
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                showToast("GPS機能が使えないので、地図は動きません");
+                                showToast(getString(R.string.location_unauthorized_msg));
                             }
                         })
                         .show();
             } else {
-                // まだ許可を求める前の時、許可を求めるダイアログを表示します。
+                // まだ許可を求める前の時、許可を求めるダイアログを表示
                 requestAccessFineLocation();
             }
-        }
+        } else {
+            // ***** 端末自体の位置情報がONになっているか確認とOFFの場合はONにするように促す処理 ***** /
+            // このアプリに位置情報へのアクセス権がある場合のみ処理を行う
+            isLocationAuthorityReady = isTerminalLocationEnabled();
 
-        //GPSがOFFの場合、位置情報モードが"GPSのみ"の場合、変更するように促すダイアログを出す。
-        isGpsEnabled();
+            // アクセス権限、設定ともに問題なければGoogleAPI接続
+            locationReadyProcess();
+        }
     }
+
+    /**
+     * お散歩アプリに位置情報へのアクセスを許可するかどうか確認するダイアログ
+     */
     private void requestAccessFineLocation() {
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 
     }
+
+    /**
+     * 当アプリのアクセス許可確認ダイアログの承認結果を受け取る
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -353,32 +338,36 @@ private static final String TAG = "MainActivity";
                 // ユーザーが許可したとき
                 // 許可が必要な機能を改めて実行する
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //
+                    // 現在地表示ボタンを設定する
+                    setMyLocationButton();
+
                 }
                 else {
                     // ユーザーが許可しなかったとき
                     // 許可されなかったため機能が実行できないことを表示する
-                    showToast("GPS機能が使えないので、地図は動きません");
+                    showToast(getString(R.string.location_unauthorized_msg));
                     // 以下は、java.lang.RuntimeException になる
                     // mMap.setMyLocationEnabled(true);
                 }
                 return;
             }
-            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
-                // ユーザーが許可したとき
-                // 許可が必要な機能を改めて実行する
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //saveConfirmDialog();
-                    // TODO　保存処理　ここを通す必要あるか？
-                }
-                else {
-                    // ユーザーが許可しなかったとき
-                    // 許可されなかったため機能が実行できないことを表示する
-                    showToast("外部へのファイルの保存が許可されなかったので、記録できません");
-                }
-                return;
-            }
+        }
+    }
 
+    /**
+     * 現在地表示ボタンを設定する
+     */
+    private void setMyLocationButton() {
+
+        // 位置情報アクセス権限があれば現在地ボタンを表示
+        if (ActivityCompat.checkSelfPermission (
+                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+            // MyLocationレイヤーを有効にする
+            mMap.setMyLocationEnabled(true);
+            UiSettings settings = mMap.getUiSettings();
+            // MyLocationButtonを有効に
+            settings.setMyLocationButtonEnabled(true);
         }
     }
 
@@ -441,7 +430,7 @@ private static final String TAG = "MainActivity";
 
         // 位置情報取得
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-
+        showToast("currentLatLngの確認"+currentLatLng);
         // まだ一度もMap表示していない場合のみ最初のMap表示を行う
         // TODO 一瞬世界地図が表示されてしまうので対応要
         if (isFirstMapDisp) {
@@ -497,12 +486,9 @@ private static final String TAG = "MainActivity";
             // 初回スタート時
             if (mFirst) {
                 Log.d(TAG, "■スタート後初回の位置情報インサート");
-                Log.d(TAG, "saveConfirm：" + saveConfirm());
-                // 保存可能な場合は散歩履歴をインサート
-                if(saveConfirm()) {
-                    walkHistoryNum = (int) walkStart();
-                    Log.d(TAG, "■散歩履歴インサート（レコードNo）：" + walkHistoryNum);
-                }
+                // 散歩履歴をインサート
+                walkHistoryNum = (int) walkStart();
+                Log.d(TAG, "■散歩履歴インサート（レコードNo）：" + walkHistoryNum);
                 mFirst = !mFirst;
             } else {
                 // 2回目以降の位置取得の場合
@@ -557,52 +543,6 @@ private static final String TAG = "MainActivity";
         double disMeter = mMeter / 1000;
         TextView main_distance = (TextView) findViewById(R.id.main_distance);
         main_distance.setText(String.format("%.2f"+" km", disMeter));
-    }
-
-    /**
-     * 保存処理を行うための権限確認
-     */
-    private boolean saveConfirm() {
-
-        boolean isPossibleSave = false;
-
-        // DangerousなPermissionはリクエストして許可をもらわないと使えない
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                //一度拒否された時、Rationale（理論的根拠）を説明して、再度許可ダイアログを出すようにする
-                new AlertDialog.Builder(this)
-                        .setTitle("許可が必要です")
-                        .setMessage("ジョギングの記録を保存するためには、WRITE_EXTERNAL_STORAGEを許可してください")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // OK button pressed
-                                requestWriteExternalStorage();
-                            }
-                        })
-                        .setNegativeButton("Cancel",  new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                showToast("外部へのファイルの保存が許可されなかったので、記録できません");
-                            }
-                        })
-                        .show();
-            } else {
-                // まだ許可を求める前の時、許可を求めるダイアログを表示します。
-                requestWriteExternalStorage();
-            }
-        } else {
-            isPossibleSave = true;
-        }
-        return isPossibleSave;
-    }
-
-    private void requestWriteExternalStorage() {
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-
     }
 
     /**
@@ -665,17 +605,17 @@ private static final String TAG = "MainActivity";
     }
 
     /**
-     * テーブルのレコードを直接変更する（コンテンツプロバイダを使わない場合）
+     * テーブルのレコードを変更する
      */
     public void updateWalkRecord(LatLng currentLatLng) {
         if (walkRecordDao == null) {
             walkRecordDao = new WalkRecordDao(getApplicationContext());
         }
-        Log.d(TAG, "■座標ダミーデータをインサート");
+        Log.d(TAG, "■座標データをインサート");
         walkRecordDao.insertCoordinate(walkHistoryNum,currentLatLng.latitude,currentLatLng.longitude);
         Log.d(TAG, "■座標件数"+walkRecordDao.selectCoordinateCount());
 
-        Log.d(TAG, "■履歴一覧ダミーデータを更新");
+        Log.d(TAG, "■履歴一覧データを更新");
 
         String endTime = AppContract.now();
         TextView endTimeView = this.findViewById(R.id.main_end_time);
@@ -698,15 +638,20 @@ private static final String TAG = "MainActivity";
                 // ONになった場合
                 if (button.isChecked()) {
 
-                    //GPSがOFFの場合、位置情報モードが"GPSのみ"の場合、変更するように促すダイアログを出す。
-                    if (!isGpsEnabled()) {
+                    // START押下時にもアプリの位置情報アクセス権と端末の位置情報設定を確認する
+                    locationAuthorityJudge();
+
+                    // 位置情報取得準備ができていない場合は処理を終了
+                    if (!isLocationAuthorityReady) {
                         //トグルボタンをSTARTに戻す。
-                        button.setTextOff("START");
                         button.setChecked(false);
+                        return;
                     }
 
+                    // STOPで接続中断後の可能性もあるのでGoogleサービス接続などを行う
+                    locationReadyProcess();
+
                     Log.d(TAG, "■経路取得開始");
-//                    startChronometer();
                     int interval = walkRecordDao.getInterval();
                     LOCATION_REQUEST.setInterval(interval);
                     mStart = true;
@@ -716,12 +661,13 @@ private static final String TAG = "MainActivity";
                     mRunList.clear();
 
                 } else {
-//                    stopChronometer();
+                    if (googleApiClient.isConnected() ) {
+                        stopLocationUpdates();
+                    }
+                    // Google Playサービスの接続を止める
+                    googleApiClient.disconnect();
+
                     mStop = true;
-                    // 速度計算は今回不要
-//                    calcSpeed();
-                    // TODO 開始後保存をすぐに行うから権限確認の処理は開始後に必要かも
-//                    saveConfirm();
                     mStart = false;
                     TextView endTime = this.findViewById(R.id.main_end_time);
                     endTime.setVisibility(View.VISIBLE);
@@ -746,21 +692,21 @@ private static final String TAG = "MainActivity";
     }
 
 /**
- * GPSの状態が有効か無効かを判断する。
- * GPSがOFFの場合、GPSをONにするよう促す、ダイアログを出す。
- * PSの位置情報モードが"GPSのみ利用" の場合ダイアログを出す。
+ * 端末の位置情報機能の状態が有効か無効かを判断する。
+ * 位置情報がOFFの場合、ONにするよう促す、ダイアログを出す。
+ * 位置情報モードが"GPSのみ利用" の場合ダイアログを出す。
  */
-    private boolean isGpsEnabled() {
+    private boolean isTerminalLocationEnabled() {
 
         // 位置情報有効か
         boolean isLocationInvalid = false;
         // GPSのみになっていないか
         boolean isGpsOnly = false;
 
-        // GPSの状態を取得
         // APIレベル19以上の場合
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
             try {
+                // 位置情報設定取得
                 int locationMode = Settings.Secure.getInt(getApplicationContext().getContentResolver(), Settings.Secure.LOCATION_MODE);
                 if (locationMode == Settings.Secure.LOCATION_MODE_OFF){
                     isLocationInvalid = true;
@@ -769,6 +715,7 @@ private static final String TAG = "MainActivity";
                 }
             } catch (Settings.SettingNotFoundException e) {
                 e.printStackTrace();
+                showToast("位置情報の設定状況確認に失敗しました");
             }
         } else {
             String gpsStatus = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
@@ -784,9 +731,8 @@ private static final String TAG = "MainActivity";
             //位置情報が無効だった場合
             //ダイアログで位置情報をONにするように促すメッセージを出す。
             new AlertDialog.Builder(this)
-                    .setTitle("位置情報機能がOFFになっています")
-                    .setMessage("このアプリを使用するには、位置情報機能をONにして\n"+
-                                "位置情報モードを「GPSのみ」以外にしてください。")
+                    .setTitle("端末の位置情報設定がOFFになっています")
+                    .setMessage("このアプリを使用するには、端末の位置情報設定をONにして位置情報モードを「GPSのみ」以外にしてください。")
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -800,9 +746,8 @@ private static final String TAG = "MainActivity";
             //GPSの位置情報モードが"GPSのみ利用" の場合
             //ダイアログでGPSの位置情報モードが"GPSのみ利用" 以外にするようメッセージを出す。
             new AlertDialog.Builder(this)
-                    .setTitle("位置情報モードが 「GPSのみ」になっています")
-                    .setMessage("このアプリを使用するには、位置情報モードを\n" +
-                            "「GPSのみ」以外にしてください。")
+                    .setTitle("端末の位置情報モードが 「GPSのみ」になっています")
+                    .setMessage("このアプリを使用するには、端末の位置情報モードを「GPSのみ」以外にしてください。")
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -817,4 +762,38 @@ private static final String TAG = "MainActivity";
         return true;
     }
 
+    /**
+     * 位置情報の取得準備が整っているときの最初の処理
+     */
+    private void locationReadyProcess() {
+        // TODO 電力消費抑えることを考える場合はもう少し考える
+        // 現状、端末の位置情報設定変更は検知できないので初回マップ表示前に一度接続しておく
+        if (isFirstMapDisp) {
+            // Google Playサービスに接続する
+            googleApiConnect();
+        }
+
+        // 権限、位置情報設定ともに問題ない場合
+        if (isLocationAuthorityReady) {
+            if (!wifiAsked) {
+                //Log.v("exec wifiAsked","" + wifiAsked);
+                // WiFiをオフにするかどうか確認
+                wifiConfirm();
+                wifiAsked = !wifiAsked;
+            }
+
+            // Google Playサービスに接続する
+            googleApiConnect();
+        }
+    }
+
+    /**
+     * googleApiClientに接続する
+     */
+    private void googleApiConnect() {
+
+        if (!googleApiClient.isConnected() ) {
+            googleApiClient.connect();
+        }
+    }
 }

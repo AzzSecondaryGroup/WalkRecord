@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     static final String DB_NAME = "walk_record.db";
-    static final int DB_VERSION = 1;
+    static final int DB_VERSION = 2;
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME,null, DB_VERSION);
