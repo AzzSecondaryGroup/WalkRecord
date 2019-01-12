@@ -483,6 +483,8 @@ private static final String TAG = "MainActivity";
         mMap.addMarker(options);
         Log.d(TAG, "■マーカーを追加");
         if (mStart) {
+            //表示されている計測データを初期化
+            creaDate();
             // 初回スタート時
             if (mFirst) {
                 Log.d(TAG, "■スタート後初回の位置情報インサート");
@@ -795,5 +797,20 @@ private static final String TAG = "MainActivity";
         if (!googleApiClient.isConnected() ) {
             googleApiClient.connect();
         }
+    }
+
+    /**
+     * メイン画面の計測値の初期化
+     */
+    private void creaDate(){
+
+        TextView main_end_time = this.findViewById(R.id.main_end_time);
+        main_end_time.setVisibility(View.INVISIBLE);
+        TextView main_distance =(TextView) findViewById(R.id.main_distance);
+        main_distance.setText(String.format("0km"));
+        TextView main_step = (TextView) findViewById(R.id.main_step);
+        main_step.setText(String.format("0歩"));
+        TextView main_calorie = (TextView) findViewById(R.id.main_calorie);
+        main_calorie.setText(String.format("0cal"));
     }
 }
