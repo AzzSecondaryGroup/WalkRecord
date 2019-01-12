@@ -41,8 +41,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:paddingLeft="5dp"
-            android:textSize="16sp" />
+            android:paddingLeft="5dp" />
 
     </LinearLayout>
 
@@ -66,7 +65,7 @@
             />
 
         <TextView
-            android:text="@string/hd_step"
+            android:text=" 歩数"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             />
@@ -80,7 +79,7 @@
             />
 
         <TextView
-            android:text="@string/step"
+            android:text="歩 "
             android:textSize= "16sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

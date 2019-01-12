@@ -17,6 +17,15 @@
             android:id="@+id/interval"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/textLength"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="身長(cm)" />
+        <EditText
+            android:id="@+id/length"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
         <Button
             android:id="@+id/saveButton"
             android:layout_width="wrap_content"
