@@ -489,7 +489,8 @@ private static final String TAG = "MainActivity";
             if (mFirst) {
                 Log.d(TAG, "■スタート後初回の位置情報インサート");
                 // 散歩履歴をインサート
-                walkHistoryNum = (int) walkStart();
+                walkHistoryNum = (int) walkStart(currentLatLng);
+                walkRecordDao.insertCoordinate(walkHistoryNum,currentLatLng.latitude,currentLatLng.longitude);
                 Log.d(TAG, "■散歩履歴インサート（レコードNo）：" + walkHistoryNum);
                 mFirst = !mFirst;
             } else {
@@ -591,7 +592,7 @@ private static final String TAG = "MainActivity";
     /**
      * 記録を開始する
      */
-    public long walkStart() {
+    public long walkStart(LatLng currentLatLng) {
         if (walkRecordDao == null) {
             walkRecordDao = new WalkRecordDao(getApplicationContext());
         }
@@ -603,13 +604,14 @@ private static final String TAG = "MainActivity";
             startTimeView.setText(startTime);
         }
 
-        return walkRecordDao.insertHistory(startTime, "", 4, 10.0, 1000);
+        return walkRecordDao.insertHistory(startTime, startTime, 0, 0.0, 0);
     }
 
     /**
      * テーブルのレコードを変更する
      */
     public void updateWalkRecord(LatLng currentLatLng) {
+
         if (walkRecordDao == null) {
             walkRecordDao = new WalkRecordDao(getApplicationContext());
         }
@@ -623,7 +625,7 @@ private static final String TAG = "MainActivity";
         TextView endTimeView = this.findViewById(R.id.main_end_time);
         endTimeView.setText(endTime);
         // ダミー値
-        walkRecordDao.updateHistory(walkHistoryNum, endTime,4, mMeter);
+        walkRecordDao.updateHistory(walkHistoryNum, endTime, 4, mMeter);
     }
 
     private void showToast(String msg) {
@@ -671,8 +673,11 @@ private static final String TAG = "MainActivity";
 
                     mStop = true;
                     mStart = false;
+
                     TextView endTime = this.findViewById(R.id.main_end_time);
                     endTime.setVisibility(View.VISIBLE);
+                    endTime.setText(AppContract.now());
+
                 }
         }
     }
