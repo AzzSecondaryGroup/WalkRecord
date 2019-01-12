@@ -117,7 +117,7 @@ public class WalkRecordDao {
     public void deleteHistory(long ID){
         //history(履歴テーブル)DELETE文
         SQLiteDatabase db = dataBaseHelper.getWritableDatabase();
-        db.delete(DatabaseContract.History.TABLE_NAME,  "id = "+ ID , null);
+        db.delete(DatabaseContract.History.TABLE_NAME,  DatabaseContract.History._ID + " = "+ ID , null);
 
     }
 
@@ -179,7 +179,7 @@ public class WalkRecordDao {
     public void deleteCoordinate(long ID){
         //history(履歴テーブル)DELETE文
         SQLiteDatabase db = dataBaseHelper.getWritableDatabase();
-        db.delete(DatabaseContract.Coordinate.TABLE_NAME,  "id = "+ ID , null);
+        db.delete(DatabaseContract.Coordinate.TABLE_NAME,  DatabaseContract.Coordinate.COLUMN_NUMBER_OF_HISTORY + " = "+ ID , null);
 
     }
     public long selectCoordinateCount(){
