@@ -62,9 +62,7 @@ public class HistoryDto {
         return endDate;
     }
 
-    public int getNumberOfSteps() {
-        return numberOfSteps;
-    }
+    public int getNumberOfSteps() { return numberOfSteps; }
 
     public String getKilometer() {
         if (this.distance > 0) {

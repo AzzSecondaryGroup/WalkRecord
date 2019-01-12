@@ -50,6 +50,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.math.BigDecimal;
 
 import jp.co.azz.maps.databases.DatabaseHelper;
 import jp.co.azz.maps.databases.HistoryDto;
@@ -91,6 +92,11 @@ private static final String TAG = "MainActivity";
     private int walkHistoryNum = 0;
     private boolean isFirstMapDisp = true;  // MAP最初の表示かどうか
     private boolean isLocationAuthorityReady = false;  // 位置情報の権限周りの準備ができているか
+
+    //歩数取得
+    private int stepCont;
+    private double lengthS;
+
 
     /**
      * onPauseの直後に呼ばれる処理
@@ -175,6 +181,10 @@ private static final String TAG = "MainActivity";
         // DBが存在しない場合はこのタイミングで作成される
         dbHelper = new DatabaseHelper(this);
 
+        //歩幅を取得（身長*0.45）
+        //TODO 設定から取得する
+        lengthS = 160*0.45;
+
         this.viewSetting();
 
     }
@@ -186,6 +196,16 @@ private static final String TAG = "MainActivity";
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (!wifiAsked) {
+            //Log.v("exec wifiAsked","" + wifiAsked);
+            // WiFiをオフにするかどうか確認
+            wifiConfirm();
+            wifiAsked = !wifiAsked;
+        }
+
+        // Google Playサービスに接続する
+        googleApiClient.connect();
 
         // バックグラウンドから戻った時にGoogleサービスに接続可能な場合は接続する
         locationReadyProcess();
@@ -485,6 +505,7 @@ private static final String TAG = "MainActivity";
         if (mStart) {
             //表示されている計測データを初期化
             creaDate();
+
             // 初回スタート時
             if (mFirst) {
                 Log.d(TAG, "■スタート後初回の位置情報インサート");
@@ -499,6 +520,9 @@ private static final String TAG = "MainActivity";
                 drawTrace(currentLatLng);
                 // 走行距離を累積
                 sumDistance();
+
+                // 歩数計算
+                stepCalc();
 
                 //座標更新、履歴テーブル更新
                 updateWalkRecord(currentLatLng);
@@ -549,11 +573,26 @@ private static final String TAG = "MainActivity";
     }
 
     /**
+     * 距離と歩幅から歩数を計算する
+     */
+    private void stepCalc(){
+
+        BigDecimal bi = new BigDecimal(String.valueOf(lengthS));
+        double stepSize= bi.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+        stepCont = (int) ((mMeter*100)/ stepSize); //cm単位で計算
+
+        TextView main_step = findViewById(R.id.main_step);
+        main_step.setText(stepCont + "歩");
+    }
+
+    /**
      * Activityがフォアグラウンドでなくなるとき
      */
     @Override
     protected void onPause() {
         super.onPause();
+
         if (googleApiClient.isConnected() ) {
             stopLocationUpdates();
         }
@@ -605,6 +644,7 @@ private static final String TAG = "MainActivity";
         }
 
         return walkRecordDao.insertHistory(startTime, startTime, 0, 0.0, 0);
+
     }
 
     /**
@@ -625,7 +665,7 @@ private static final String TAG = "MainActivity";
         TextView endTimeView = this.findViewById(R.id.main_end_time);
         endTimeView.setText(endTime);
         // ダミー値
-        walkRecordDao.updateHistory(walkHistoryNum, endTime, 4, mMeter);
+        walkRecordDao.updateHistory(walkHistoryNum, endTime, stepCont, mMeter);
     }
 
     private void showToast(String msg) {
@@ -696,6 +736,7 @@ private static final String TAG = "MainActivity";
 
         // トグルボタンにリスナーを追加
         toggleButton.setOnClickListener(this);
+
     }
 
 /**
