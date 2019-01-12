@@ -200,6 +200,7 @@
             android:textOn="@string/text_on"
             android:textOff="@string/text_off"
             android:id="@+id/toggleButton"
+            android:checked="false"
             />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
