@@ -164,9 +164,9 @@ public class DetailActivity extends AppCompatActivity
 
         TextView distance = this.findViewById(R.id.main_distance);
         distance.setText(history.getKilometer());
-
-        TextView stepCont = this.findViewById(R.id.main_step);
-        stepCont.setText(history.getNumberOfSteps());
+        
+        TextView step_cnt = this.findViewById(R.id.main_step);
+        step_cnt.setText(String.valueOf(history.getNumberOfSteps()+ "歩"));
 
         TextView calorie = this.findViewById(R.id.main_calorie);
         calorie.setText(String.valueOf(history.getCalorie()));
