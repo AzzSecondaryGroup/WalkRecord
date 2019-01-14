@@ -3,7 +3,6 @@ package jp.co.azz.maps;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -49,24 +48,6 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         spinner.setSelection(initPosition,false);
 
         this.viewSetting();
-
-        // リスナーを登録
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            //　アイテムが選択された時
-            @Override
-            public void onItemSelected(AdapterView<?> parent,
-                                       View view, int position, long id) {
-                Spinner spinner = (Spinner) parent;
-                String item = (String) spinner.getSelectedItem();
-                Toast.makeText(getApplicationContext(), "スピナー選択値" + item, Toast.LENGTH_SHORT).show();
-
-            }
-
-            //　アイテムが選択されなかった
-            public void onNothingSelected(AdapterView<?> parent) {
-                //
-            }
-        });
 
     }
 
