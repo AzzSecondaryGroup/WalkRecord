@@ -28,7 +28,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         walkRecordDao = new WalkRecordDao(getApplicationContext());
         final int interval = walkRecordDao.getInterval();
 
-        Toast.makeText(this, "DB取得" + interval, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "表示間隔DB取得" + interval, Toast.LENGTH_SHORT).show();
 
 //        TextView intervalView = this.findViewById(R.id.interval);
 //        intervalView.setText(String.valueOf(interval / 1000));
@@ -47,7 +47,15 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         // spinner に adapter をセット
         spinner.setAdapter(adapter);
         //todo POSIONを取得して設定すること　久保田対応中
-        spinner.setSelection(4,false);
+        // 地図表示間隔のDB保存値からスピナーの初期表示位置を取得
+        int initPosition = adapter.getPosition(String.valueOf(interval/1000));
+        // ポジション取得失敗(-1)の場合はひとまず5秒の位置を設定しておく
+        if (initPosition == -1) {
+            initPosition = 1;
+        }
+        Toast.makeText(getApplicationContext(), "アダプターのポジション取得：" + initPosition, Toast.LENGTH_SHORT).show();
+        // スピナーにセット
+        spinner.setSelection(initPosition,false);
         //setText(String.valueOf(interval / 1000));
 
         this.viewSetting();
@@ -60,7 +68,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                                        View view, int position, long id) {
                 Spinner spinner = (Spinner) parent;
                 String item = (String) spinner.getSelectedItem();
-                Toast.makeText(getApplicationContext(), "DB取得" + item, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "スピナー選択値" + item, Toast.LENGTH_SHORT).show();
 
             }
 
