@@ -2,8 +2,10 @@ package jp.co.azz.maps;
 
 import android.Manifest;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -48,9 +50,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.math.BigDecimal;
 
 import jp.co.azz.maps.databases.DatabaseHelper;
 import jp.co.azz.maps.databases.HistoryDto;
@@ -97,6 +99,10 @@ private static final String TAG = "MainActivity";
     private int stepCont;
     private double lengthS;
 
+    ///////////// ダミーモード設定 /////////////
+    SharedPreferences saveData;
+    boolean isDummyMode = false;
+    ///////////////////////////////////////
 
     /**
      * onPauseの直後に呼ばれる処理
@@ -196,6 +202,10 @@ private static final String TAG = "MainActivity";
     @Override
     protected void onResume() {
         super.onResume();
+        //////////////////////////////////// ダミーモード設定値取得 ////////////////////////////////////////
+        saveData = getSharedPreferences("SettingData", Context.MODE_PRIVATE);
+        isDummyMode = saveData.getBoolean("dummyModeKey", false);
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         if (!wifiAsked) {
             //Log.v("exec wifiAsked","" + wifiAsked);
@@ -469,7 +479,7 @@ private static final String TAG = "MainActivity";
         }
 
         // ********** テスト用ダミーデータの作成 *************
-        if(!mRunList.isEmpty()) {
+        if(!mRunList.isEmpty() && isDummyMode) {
             LatLng dummy = mRunList.get(mRunList.size() - 1);
             // 屋内のテスト用に位置を変える
             dummy = new LatLng(dummy.latitude + 0.02, dummy.longitude + 0.02);

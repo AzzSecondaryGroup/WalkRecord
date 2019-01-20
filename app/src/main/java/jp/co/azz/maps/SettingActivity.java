@@ -1,11 +1,15 @@
 package jp.co.azz.maps;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import jp.co.azz.maps.databases.WalkRecordDao;
@@ -18,6 +22,12 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     String msg;
 
     private String spinnerItems[] = {"1", "5", "10", "15", "30", "45", "60"};
+
+    ///////////// ダミーモード設定 /////////////
+    private Switch dummyModeSwitch;
+    private SharedPreferences saveData;
+    private boolean isDummyMode = false;
+    ///////////////////////////////////////
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +59,23 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
         this.viewSetting();
 
+        ///////////////////////// ダミーモード設定 ///////////////////////////////////////////
+        dummyModeSwitch = this.findViewById(R.id.dummy_record);
+        saveData = getSharedPreferences("SettingData", Context.MODE_PRIVATE);
+        // ダミーモードの状態保存値を取り出して復元する
+        boolean isDummy = saveData.getBoolean("dummyModeKey", false);
+        dummyModeSwitch.setChecked(isDummy);
+        isDummyMode = isDummy;
+        
+        // ダミーモードSwitch変更時の状態を退避
+        dummyModeSwitch.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
+                        isDummyMode = isChecked;
+                    }
+                }
+        );
+        ////////////////////////////////////////////////////////////////////////////////////
     }
 
     @Override
@@ -60,6 +87,14 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 String item = selectInterval.getSelectedItem().toString();
                 String interval = String.valueOf(Integer.valueOf(item) * 1000);
                 walkRecordDao.updateInterval(Integer.parseInt(interval));
+
+                /////////////////////////////////// ダミーモード設定 /////////////////////////////////
+
+                // ダミーモードの設定状態を保存
+                SharedPreferences.Editor editor = saveData.edit();
+                editor.putBoolean("dummyModeKey", isDummyMode);
+                editor.apply();
+                ////////////////////////////////////////////////////////////////////////////////////
         }
         msg = "設定を更新しました";
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
