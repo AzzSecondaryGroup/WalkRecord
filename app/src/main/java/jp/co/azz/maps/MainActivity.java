@@ -526,8 +526,6 @@ private static final String TAG = "MainActivity";
                 mFirst = !mFirst;
             } else {
                 // 2回目以降の位置取得の場合
-                // 移動線を描画
-                drawTrace(currentLatLng);
                 // 走行距離を累積
                 sumDistance();
 
@@ -537,6 +535,8 @@ private static final String TAG = "MainActivity";
                 //座標更新、履歴テーブル更新
                 updateWalkRecord(currentLatLng);
             }
+            // 移動線を描画
+            drawTrace(currentLatLng);
         }
     }
 
