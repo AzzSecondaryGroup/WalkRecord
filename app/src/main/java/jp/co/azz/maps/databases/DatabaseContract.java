@@ -78,6 +78,7 @@ public final class DatabaseContract {
                         + COLUMN_VALUE + " TEXT NOT NULL" +
                         ")";
         static final String SETTING_INTERVAL = "interval";
+        static final String SETTING_TALL = "tall";
 
         public static void create(SQLiteDatabase db) {
             db.execSQL(DatabaseContract.Setting.CREATE_TABLE_SQL);
@@ -88,6 +89,8 @@ public final class DatabaseContract {
             ContentValues cv = new ContentValues();
             cv.put(COLUMN_KEY, "interval");
             cv.put(COLUMN_VALUE, 500);
+            cv.put(COLUMN_KEY, "tall");
+            cv.put(COLUMN_VALUE, 170);
             db.insert(TABLE_NAME, null, cv);
         }
     }

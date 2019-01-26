@@ -187,10 +187,6 @@ private static final String TAG = "MainActivity";
         // DBが存在しない場合はこのタイミングで作成される
         dbHelper = new DatabaseHelper(this);
 
-        //歩幅を取得（身長*0.45）
-        //TODO 設定から取得する
-        lengthS = 160*0.45;
-
         this.viewSetting();
 
     }
@@ -206,6 +202,10 @@ private static final String TAG = "MainActivity";
         saveData = getSharedPreferences("SettingData", Context.MODE_PRIVATE);
         isDummyMode = saveData.getBoolean("dummyModeKey", false);
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        walkRecordDao = new WalkRecordDao(getApplicationContext());
+        //歩幅を取得（身長*0.45）
+        lengthS = (double) walkRecordDao.getTall() * 45 / 100;
 
         if (!wifiAsked) {
             //Log.v("exec wifiAsked","" + wifiAsked);
@@ -587,7 +587,7 @@ private static final String TAG = "MainActivity";
      */
     private void stepCalc(){
 
-        BigDecimal bi = new BigDecimal(String.valueOf(lengthS));
+        BigDecimal bi = new BigDecimal(lengthS);
         double stepSize= bi.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
 
         stepCont = (int) ((mMeter*100)/ stepSize); //cm単位で計算

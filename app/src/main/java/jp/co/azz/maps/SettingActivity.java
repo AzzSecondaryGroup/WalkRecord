@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import jp.co.azz.maps.databases.WalkRecordDao;
@@ -57,6 +58,9 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         // スピナーにセット
         spinner.setSelection(initPosition,false);
 
+        TextView tall = (TextView) findViewById(R.id.tall);
+        tall.setText(String.valueOf(walkRecordDao.getTall()));
+
         this.viewSetting();
 
         ///////////////////////// ダミーモード設定 ///////////////////////////////////////////
@@ -87,6 +91,10 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 String item = selectInterval.getSelectedItem().toString();
                 String interval = String.valueOf(Integer.valueOf(item) * 1000);
                 walkRecordDao.updateInterval(Integer.parseInt(interval));
+
+                String selectTall = ((TextView)this.findViewById(R.id.tall)).getText().toString();
+                selectTall = selectTall.isEmpty() ? "170" : selectTall;
+                walkRecordDao.updateTall(Integer.parseInt(selectTall));
 
                 /////////////////////////////////// ダミーモード設定 /////////////////////////////////
 

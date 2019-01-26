@@ -225,4 +225,40 @@ public class WalkRecordDao {
             ,null
             ,null);
     }
+    /**
+     * 身長を取得する
+     * 設定がなければ170cmとしている
+     */
+    @Nullable
+    public int getTall() {
+
+        SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+        Cursor c = db.query(
+                DatabaseContract.Setting.TABLE_NAME,
+                null,
+                DatabaseContract.Setting.COLUMN_KEY + " = ?",
+                new String[] {DatabaseContract.Setting.SETTING_TALL},
+                null,
+                null,
+                null,
+                null
+        );
+
+        if(c.moveToFirst()){
+            return c.getInt(c.getColumnIndex(DatabaseContract.Setting.COLUMN_VALUE));
+        }
+
+        return 170;
+    }
+
+    public void updateTall(int tall){
+        SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseContract.Setting.COLUMN_KEY, "tall");
+        cv.put(DatabaseContract.Setting.COLUMN_VALUE, tall);
+        db.update(DatabaseContract.Setting.TABLE_NAME,
+                cv
+                ,null
+                ,null);
+    }
 }
