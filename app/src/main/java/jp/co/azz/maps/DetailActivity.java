@@ -7,15 +7,12 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -30,8 +27,8 @@ import jp.co.azz.maps.databases.CoordinateListDto;
 import jp.co.azz.maps.databases.HistoryDto;
 import jp.co.azz.maps.databases.WalkRecordDao;
 
-public class DetailActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+public class DetailActivity extends ActivityBase
+        implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private WalkRecordDao walkRecordDao;
@@ -42,7 +39,6 @@ public class DetailActivity extends AppCompatActivity
 
         walkRecordDao = new WalkRecordDao(getApplicationContext());
 
-        setContentView(R.layout.history_detail);
         Toolbar toolbar = findViewById(R.id.toolbar);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -65,6 +61,10 @@ public class DetailActivity extends AppCompatActivity
         mapFragment.getMapAsync(this);
 
         this.viewSetting();
+    }
+
+    protected int getLayoutId() {
+        return R.layout.history_detail;
     }
 
     @Override
@@ -136,8 +136,8 @@ public class DetailActivity extends AppCompatActivity
         mMap = googleMap;
 
         Bundle extras = this.getIntent().getExtras();
-        long historyId = (long)extras.get("historyId");
-        Log.d("詳細","historyId="+historyId);
+        long historyId = (long) extras.get("historyId");
+        Log.d("詳細", "historyId=" + historyId);
 
         CoordinateListDto coordinates = walkRecordDao.selectCoordinate(historyId);
 
@@ -155,7 +155,7 @@ public class DetailActivity extends AppCompatActivity
      */
     private void viewSetting() {
         Bundle extras = this.getIntent().getExtras();
-        long historyId = (long)extras.get("historyId");
+        long historyId = (long) extras.get("historyId");
         HistoryDto history = walkRecordDao.selectByIdFromHistory(historyId);
 
         // 詳細画面はメイン画面を使いまわしている。
@@ -164,9 +164,9 @@ public class DetailActivity extends AppCompatActivity
 
         TextView distance = this.findViewById(R.id.main_distance);
         distance.setText(history.getKilometer());
-        
+
         TextView step_cnt = this.findViewById(R.id.main_step);
-        step_cnt.setText(String.valueOf(history.getNumberOfSteps()+ "歩"));
+        step_cnt.setText(String.valueOf(history.getNumberOfSteps() + "歩"));
 
         TextView calorie = this.findViewById(R.id.main_calorie);
         calorie.setText(String.valueOf(history.getCalorie()));

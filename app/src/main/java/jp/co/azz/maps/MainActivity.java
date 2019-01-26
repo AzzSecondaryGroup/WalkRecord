@@ -20,7 +20,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -59,10 +58,10 @@ import jp.co.azz.maps.databases.HistoryDto;
 import jp.co.azz.maps.databases.WalkRecordDao;
 
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
+public class MainActivity extends ActivityBase
+        implements OnMapReadyCallback,
         ConnectionCallbacks, OnConnectionFailedListener, LocationListener, View.OnClickListener {
-private static final String TAG = "MainActivity";
+    private static final String TAG = "MainActivity";
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     // サンプルはINTERVAL:500(ミリ秒) ,FASTESTINTERVAL:16
@@ -106,6 +105,7 @@ private static final String TAG = "MainActivity";
 
     /**
      * onPauseの直後に呼ばれる処理
+     *
      * @param outState
      */
     @Override
@@ -113,12 +113,13 @@ private static final String TAG = "MainActivity";
         super.onSaveInstanceState(outState);
         // メンバー変数の状態を保存
         outState.putBoolean("IS_FIRST_MAP_DISP", isFirstMapDisp);
-        outState.putBoolean("WIFI_ASKED",wifiAsked);
+        outState.putBoolean("WIFI_ASKED", wifiAsked);
     }
 
     /**
      * onStartの直後に呼ばれる処理
      * 保存後にActivityが破棄された次のライフサイクルのタイミングでのみ呼ばれる
+     *
      * @param savedInstanceState
      */
     @Override
@@ -137,7 +138,6 @@ private static final String TAG = "MainActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         // ****************** デバッグ用散歩履歴件数表示 ******************
         walkRecordDao = new WalkRecordDao(getApplicationContext());
@@ -189,10 +189,15 @@ private static final String TAG = "MainActivity";
 
         //歩幅を取得（身長*0.45）
         //TODO 設定から取得する
-        lengthS = 160*0.45;
+        lengthS = 160 * 0.45;
 
         this.viewSetting();
 
+    }
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.activity_main;
     }
 
     /**
@@ -277,6 +282,7 @@ private static final String TAG = "MainActivity";
 
     /**
      * マップの初期化完了時に呼ばれる処理
+     *
      * @param googleMap
      */
     @Override
@@ -357,6 +363,7 @@ private static final String TAG = "MainActivity";
 
     /**
      * 当アプリのアクセス許可確認ダイアログの承認結果を受け取る
+     *
      * @param requestCode
      * @param permissions
      * @param grantResults
@@ -371,8 +378,7 @@ private static final String TAG = "MainActivity";
                     // 現在地表示ボタンを設定する
                     setMyLocationButton();
 
-                }
-                else {
+                } else {
                     // ユーザーが許可しなかったとき
                     // 許可されなかったため機能が実行できないことを表示する
                     showToast(getString(R.string.location_unauthorized_msg));
@@ -390,7 +396,7 @@ private static final String TAG = "MainActivity";
     private void setMyLocationButton() {
 
         // 位置情報アクセス権限があれば現在地ボタンを表示
-        if (ActivityCompat.checkSelfPermission (
+        if (ActivityCompat.checkSelfPermission(
                 getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
             // MyLocationレイヤーを有効にする
@@ -405,13 +411,14 @@ private static final String TAG = "MainActivity";
      * WiFiをオフにするかどうか確認するダイアログ
      * （WiFiがオンの場合、近くのWiFiをキャッチして現在地がぶれる可能性があるため）
      */
-    private void wifiConfirm(){
-        wifiManager = (WifiManager)getApplicationContext().getSystemService(WIFI_SERVICE);
+    private void wifiConfirm() {
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
 
-        if(wifiManager.isWifiEnabled()) {
+        if (wifiManager.isWifiEnabled()) {
             wifiConfirmDialog();
         }
     }
+
     private void wifiConfirmDialog() {
         DialogFragment newFragment = WifiConfirmDialogFragment.newInstance(
                 R.string.wifi_confirm_dialog_title, R.string.wifi_confirm_dialog_message);
@@ -425,11 +432,12 @@ private static final String TAG = "MainActivity";
      */
     public void wifiOff() {
         wifiManager.setWifiEnabled(false);
-        mWifiOff=true;
+        mWifiOff = true;
     }
 
     /**
      * Google Playサービスに接続したときの処理
+     *
      * @param bundle
      */
     @Override
@@ -456,17 +464,17 @@ private static final String TAG = "MainActivity";
     public void onLocationChanged(Location location) {
 
         Log.d(TAG, "■位置情報が更新されたとき");
-        Log.d(TAG, "■緯度、経路："+location.getLatitude() + ", " + location.getLongitude());
+        Log.d(TAG, "■緯度、経路：" + location.getLatitude() + ", " + location.getLongitude());
 
         // 位置情報取得
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-        showToast("currentLatLngの確認"+currentLatLng);
+        showToast("currentLatLngの確認" + currentLatLng);
         // まだ一度もMap表示していない場合のみ最初のMap表示を行う
         // TODO 一瞬世界地図が表示されてしまうので対応要
         if (isFirstMapDisp) {
             // カメラの倍率、ポジション変更
             CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(
-            new LatLng(location.getLatitude(), location.getLongitude()), 16);
+                    new LatLng(location.getLatitude(), location.getLongitude()), 16);
             mMap.moveCamera(cUpdate);
             Log.d(TAG, "■最初の地図の位置更新");
 
@@ -479,7 +487,7 @@ private static final String TAG = "MainActivity";
         }
 
         // ********** テスト用ダミーデータの作成 *************
-        if(!mRunList.isEmpty() && isDummyMode) {
+        if (!mRunList.isEmpty() && isDummyMode) {
             LatLng dummy = mRunList.get(mRunList.size() - 1);
             // 屋内のテスト用に位置を変える
             dummy = new LatLng(dummy.latitude + 0.02, dummy.longitude + 0.02);
@@ -521,7 +529,7 @@ private static final String TAG = "MainActivity";
                 Log.d(TAG, "■スタート後初回の位置情報インサート");
                 // 散歩履歴をインサート
                 walkHistoryNum = (int) walkStart(currentLatLng);
-                walkRecordDao.insertCoordinate(walkHistoryNum,currentLatLng.latitude,currentLatLng.longitude);
+                walkRecordDao.insertCoordinate(walkHistoryNum, currentLatLng.latitude, currentLatLng.longitude);
                 Log.d(TAG, "■散歩履歴インサート（レコードNo）：" + walkHistoryNum);
                 mFirst = !mFirst;
             } else {
@@ -542,6 +550,7 @@ private static final String TAG = "MainActivity";
 
     /**
      * 線を引く
+     *
      * @param latlng
      */
     private void drawTrace(LatLng latlng) {
@@ -566,12 +575,12 @@ private static final String TAG = "MainActivity";
         if (mRunList.size() < 2) {
             return;
         }
-        mMeter=0;
+        mMeter = 0;
         float[] results = new float[3];
         int i = 1;
-        while (i<mRunList.size()){
-            results[0]=0;
-            Location.distanceBetween(mRunList.get(i-1).latitude, mRunList.get(i-1).longitude,
+        while (i < mRunList.size()) {
+            results[0] = 0;
+            Location.distanceBetween(mRunList.get(i - 1).latitude, mRunList.get(i - 1).longitude,
                     mRunList.get(i).latitude, mRunList.get(i).longitude, results);
             mMeter += results[0];
             i++;
@@ -579,18 +588,18 @@ private static final String TAG = "MainActivity";
         // distanceBetweenの距離はメートル単位
         double disMeter = mMeter / 1000;
         TextView main_distance = (TextView) findViewById(R.id.main_distance);
-        main_distance.setText(String.format("%.2f"+" km", disMeter));
+        main_distance.setText(String.format("%.2f" + " km", disMeter));
     }
 
     /**
      * 距離と歩幅から歩数を計算する
      */
-    private void stepCalc(){
+    private void stepCalc() {
 
         BigDecimal bi = new BigDecimal(String.valueOf(lengthS));
-        double stepSize= bi.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+        double stepSize = bi.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
 
-        stepCont = (int) ((mMeter*100)/ stepSize); //cm単位で計算
+        stepCont = (int) ((mMeter * 100) / stepSize); //cm単位で計算
 
         TextView main_step = findViewById(R.id.main_step);
         main_step.setText(stepCont + "歩");
@@ -603,7 +612,7 @@ private static final String TAG = "MainActivity";
     protected void onPause() {
         super.onPause();
 
-        if (googleApiClient.isConnected() ) {
+        if (googleApiClient.isConnected()) {
             stopLocationUpdates();
         }
         // Google Playサービスの接続を止める
@@ -629,10 +638,12 @@ private static final String TAG = "MainActivity";
     protected void stopLocationUpdates() {
         fusedLocationProviderApi.removeLocationUpdates(googleApiClient, this);
     }
+
     @Override
     public void onConnectionSuspended(int cause) {
         // Do nothing
     }
+
     @Override
     public void onConnectionFailed(ConnectionResult result) {
         // Do nothing
@@ -666,8 +677,8 @@ private static final String TAG = "MainActivity";
             walkRecordDao = new WalkRecordDao(getApplicationContext());
         }
         Log.d(TAG, "■座標データをインサート");
-        walkRecordDao.insertCoordinate(walkHistoryNum,currentLatLng.latitude,currentLatLng.longitude);
-        Log.d(TAG, "■座標件数"+walkRecordDao.selectCoordinateCount());
+        walkRecordDao.insertCoordinate(walkHistoryNum, currentLatLng.latitude, currentLatLng.longitude);
+        Log.d(TAG, "■座標件数" + walkRecordDao.selectCoordinateCount());
 
         Log.d(TAG, "■履歴一覧データを更新");
 
@@ -715,7 +726,7 @@ private static final String TAG = "MainActivity";
                     mRunList.clear();
 
                 } else {
-                    if (googleApiClient.isConnected() ) {
+                    if (googleApiClient.isConnected()) {
                         stopLocationUpdates();
                     }
                     // Google Playサービスの接続を止める
@@ -749,11 +760,11 @@ private static final String TAG = "MainActivity";
 
     }
 
-/**
- * 端末の位置情報機能の状態が有効か無効かを判断する。
- * 位置情報がOFFの場合、ONにするよう促す、ダイアログを出す。
- * 位置情報モードが"GPSのみ利用" の場合ダイアログを出す。
- */
+    /**
+     * 端末の位置情報機能の状態が有効か無効かを判断する。
+     * 位置情報がOFFの場合、ONにするよう促す、ダイアログを出す。
+     * 位置情報モードが"GPSのみ利用" の場合ダイアログを出す。
+     */
     private boolean isTerminalLocationEnabled() {
 
         // 位置情報有効か
@@ -762,11 +773,11 @@ private static final String TAG = "MainActivity";
         boolean isGpsOnly = false;
 
         // APIレベル19以上の場合
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             try {
                 // 位置情報設定取得
                 int locationMode = Settings.Secure.getInt(getApplicationContext().getContentResolver(), Settings.Secure.LOCATION_MODE);
-                if (locationMode == Settings.Secure.LOCATION_MODE_OFF){
+                if (locationMode == Settings.Secure.LOCATION_MODE_OFF) {
                     isLocationInvalid = true;
                 } else if (locationMode == Settings.Secure.LOCATION_MODE_SENSORS_ONLY) {
                     isGpsOnly = true;
@@ -799,7 +810,7 @@ private static final String TAG = "MainActivity";
                         }
                     })
                     .show();
-                    return false;
+            return false;
         } else if (isGpsOnly) {
             //GPSの位置情報モードが"GPSのみ利用" の場合
             //ダイアログでGPSの位置情報モードが"GPSのみ利用" 以外にするようメッセージを出す。
@@ -814,7 +825,7 @@ private static final String TAG = "MainActivity";
                         }
                     })
                     .show();
-                    return false;
+            return false;
         }
 
         return true;
@@ -850,7 +861,7 @@ private static final String TAG = "MainActivity";
      */
     private void googleApiConnect() {
 
-        if (!googleApiClient.isConnected() ) {
+        if (!googleApiClient.isConnected()) {
             googleApiClient.connect();
         }
     }
@@ -858,11 +869,11 @@ private static final String TAG = "MainActivity";
     /**
      * メイン画面の計測値の初期化
      */
-    private void creaDate(){
+    private void creaDate() {
 
         TextView main_end_time = this.findViewById(R.id.main_end_time);
         main_end_time.setVisibility(View.INVISIBLE);
-        TextView main_distance =(TextView) findViewById(R.id.main_distance);
+        TextView main_distance = (TextView) findViewById(R.id.main_distance);
         main_distance.setText(String.format("0km"));
         TextView main_step = (TextView) findViewById(R.id.main_step);
         main_step.setText(String.format("0歩"));
