@@ -711,6 +711,9 @@ private static final String TAG = "MainActivity";
                     mMeter = 0.0;
                     mRunList.clear();
 
+                    // 散歩記録開始メッセージ表示
+                    showToast("散歩の記録を開始しました。");
+
                 } else {
                     if (googleApiClient.isConnected() ) {
                         stopLocationUpdates();
@@ -724,6 +727,9 @@ private static final String TAG = "MainActivity";
                     TextView endTime = this.findViewById(R.id.main_end_time);
                     endTime.setVisibility(View.VISIBLE);
                     endTime.setText(AppContract.now());
+
+                    // 散歩記録終了メッセージ表示
+                    showToast("散歩の記録を終了しました。");
 
                 }
         }
