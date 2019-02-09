@@ -262,9 +262,6 @@ private static final String TAG = "MainActivity";
         if (id == R.id.walk_history) {
             Intent intent = new Intent(getApplication(), WalkHistoryActivity.class);
             startActivity(intent);
-        } else if (id == R.id.calorie_calculation) {
-            Intent intent = new Intent(getApplication(), CalorieCalculationActivity.class);
-            startActivity(intent);
         } else if (id == R.id.setting) {
             Intent intent = new Intent(getApplication(), SettingActivity.class);
             startActivity(intent);
@@ -460,7 +457,7 @@ private static final String TAG = "MainActivity";
 
         // 位置情報取得
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-        showToast("currentLatLngの確認"+currentLatLng);
+        // showToast("currentLatLngの確認"+currentLatLng);
         // まだ一度もMap表示していない場合のみ最初のMap表示を行う
         // TODO 一瞬世界地図が表示されてしまうので対応要
         if (isFirstMapDisp) {
