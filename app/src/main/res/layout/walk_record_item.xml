@@ -11,8 +11,6 @@
 
         <TextView
             android:text="@string/hd_start_time"
-            android:paddingLeft="10dp"
-            android:textSize= "16sp"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -20,8 +18,6 @@
 
         <TextView
             android:text="@string/hd_end_time"
-            android:paddingLeft="10dp"
-            android:textSize= "16sp"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -36,21 +32,16 @@
 
         <TextView
             android:id="@+id/start_time"
-            android:paddingLeft="10dp"
-            android:textSize= "16sp"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            />
+            android:layout_weight="1" />
 
         <TextView
             android:id="@+id/end_time"
-            android:paddingLeft="10dp"
-            android:textSize= "16sp"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            />
+            android:layout_weight="1"
+            android:paddingLeft="5dp" />
 
     </LinearLayout>
 
@@ -59,72 +50,66 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-    <TextView
-        android:text="@string/hd_distance"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:text="@string/hd_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:id="@+id/distance"
-        android:paddingLeft="10dp"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:id="@+id/distance"
+            android:paddingLeft="10dp"
+            android:textSize= "16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:text="@string/km"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:text=" 歩数"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:text="@string/hd_step"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:id="@+id/step_cnt"
+            android:paddingLeft="10dp"
+            android:textSize= "16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:id="@+id/step_cnt"
-        android:paddingLeft="10dp"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:text="歩 "
+            android:textSize= "16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:text="@string/step"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:text="@string/hd_calorie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:id="@string/hd_calorie"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        <TextView
+            android:id="@+id/calorie"
+            android:paddingLeft="10dp"
+            android:textSize= "16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <TextView
-        android:id="@+id/calorie"
-        android:paddingLeft="10dp"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
-
-    <TextView
-        android:text="@string/calorie"
-        android:textSize= "16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
-
+        <TextView
+            android:text="@string/calorie"
+            android:textSize= "16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
     </LinearLayout>
-
+    <TextView
+        android:id="@+id/history_id"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        />
 </LinearLayout>
