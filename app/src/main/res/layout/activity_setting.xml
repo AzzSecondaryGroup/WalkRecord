@@ -36,9 +36,21 @@
             android:layout_height="wrap_content"
             android:text="身長(cm)" />
         <EditText
-            android:id="@+id/length"
+            android:id="@+id/tall"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:digits="01234567890"
+            android:gravity="right"
+            android:inputType="number"
+            android:maxLength="3"
+            />
+        <Switch
+            android:layout_marginTop="10dp"
+            android:text="散歩記録ダミーモード"
+            android:id="@+id/dummy_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"/>
         <Button
             android:layout_marginTop="12dp"
             android:id="@+id/saveButton"

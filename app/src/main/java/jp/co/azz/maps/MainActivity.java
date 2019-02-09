@@ -2,8 +2,10 @@ package jp.co.azz.maps;
 
 import android.Manifest;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -48,9 +50,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.math.BigDecimal;
 
 import jp.co.azz.maps.databases.DatabaseHelper;
 import jp.co.azz.maps.databases.HistoryDto;
@@ -97,6 +99,10 @@ private static final String TAG = "MainActivity";
     private int stepCont;
     private double lengthS;
 
+    ///////////// ダミーモード設定 /////////////
+    SharedPreferences saveData;
+    boolean isDummyMode = false;
+    ///////////////////////////////////////
 
     /**
      * onPauseの直後に呼ばれる処理
@@ -181,10 +187,6 @@ private static final String TAG = "MainActivity";
         // DBが存在しない場合はこのタイミングで作成される
         dbHelper = new DatabaseHelper(this);
 
-        //歩幅を取得（身長*0.45）
-        //TODO 設定から取得する
-        lengthS = 160*0.45;
-
         this.viewSetting();
 
     }
@@ -196,6 +198,14 @@ private static final String TAG = "MainActivity";
     @Override
     protected void onResume() {
         super.onResume();
+        //////////////////////////////////// ダミーモード設定値取得 ////////////////////////////////////////
+        saveData = getSharedPreferences("SettingData", Context.MODE_PRIVATE);
+        isDummyMode = saveData.getBoolean("dummyModeKey", false);
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        walkRecordDao = new WalkRecordDao(getApplicationContext());
+        //歩幅を取得（身長*0.45）
+        lengthS = (double) walkRecordDao.getTall() * 45 / 100;
 
         if (!wifiAsked) {
             //Log.v("exec wifiAsked","" + wifiAsked);
@@ -251,9 +261,6 @@ private static final String TAG = "MainActivity";
 
         if (id == R.id.walk_history) {
             Intent intent = new Intent(getApplication(), WalkHistoryActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.calorie_calculation) {
-            Intent intent = new Intent(getApplication(), CalorieCalculationActivity.class);
             startActivity(intent);
         } else if (id == R.id.setting) {
             Intent intent = new Intent(getApplication(), SettingActivity.class);
@@ -450,7 +457,7 @@ private static final String TAG = "MainActivity";
 
         // 位置情報取得
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-        showToast("currentLatLngの確認"+currentLatLng);
+        // showToast("currentLatLngの確認"+currentLatLng);
         // まだ一度もMap表示していない場合のみ最初のMap表示を行う
         // TODO 一瞬世界地図が表示されてしまうので対応要
         if (isFirstMapDisp) {
@@ -469,7 +476,7 @@ private static final String TAG = "MainActivity";
         }
 
         // ********** テスト用ダミーデータの作成 *************
-        if(!mRunList.isEmpty()) {
+        if(!mRunList.isEmpty() && isDummyMode) {
             LatLng dummy = mRunList.get(mRunList.size() - 1);
             // 屋内のテスト用に位置を変える
             dummy = new LatLng(dummy.latitude + 0.02, dummy.longitude + 0.02);
@@ -516,8 +523,6 @@ private static final String TAG = "MainActivity";
                 mFirst = !mFirst;
             } else {
                 // 2回目以降の位置取得の場合
-                // 移動線を描画
-                drawTrace(currentLatLng);
                 // 走行距離を累積
                 sumDistance();
 
@@ -527,6 +532,8 @@ private static final String TAG = "MainActivity";
                 //座標更新、履歴テーブル更新
                 updateWalkRecord(currentLatLng);
             }
+            // 移動線を描画
+            drawTrace(currentLatLng);
         }
     }
 
@@ -577,7 +584,7 @@ private static final String TAG = "MainActivity";
      */
     private void stepCalc(){
 
-        BigDecimal bi = new BigDecimal(String.valueOf(lengthS));
+        BigDecimal bi = new BigDecimal(lengthS);
         double stepSize= bi.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
 
         stepCont = (int) ((mMeter*100)/ stepSize); //cm単位で計算
