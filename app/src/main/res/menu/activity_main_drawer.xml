@@ -11,19 +11,8 @@
             android:id="@+id/walk_history"
             android:title="お散歩履歴一覧" />
         <item
-            android:id="@+id/calorie_calculation"
-            android:title="カロリー計算用情報" />
-        <item
             android:id="@+id/setting"
             android:title="設定" />
     </group>
-
-    <item android:title="etc">
-        <menu>
-            <item
-                android:id="@+id/etc2"
-                android:title="etc" />
-        </menu>
-    </item>
 
 </menu>
