@@ -63,6 +63,10 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         }
         msg = "設定を更新しました";
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+
+        // 保存後、設定画面を終了させる
+        finish();
+
     }
 
     /**
