@@ -54,6 +54,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.co.azz.maps.databases.DatabaseContract;
 import jp.co.azz.maps.databases.DatabaseHelper;
 import jp.co.azz.maps.databases.HistoryDto;
 import jp.co.azz.maps.databases.WalkRecordDao;
@@ -97,7 +98,7 @@ private static final String TAG = "MainActivity";
 
     //歩数取得
     private int stepCont;
-    private double lengthS;
+    private double lengths;
 
     ///////////// ダミーモード設定 /////////////
     SharedPreferences saveData;
@@ -205,7 +206,11 @@ private static final String TAG = "MainActivity";
 
         walkRecordDao = new WalkRecordDao(getApplicationContext());
         //歩幅を取得（身長*0.45）
-        lengthS = (double) walkRecordDao.getTall() * 45 / 100;
+        int tall = walkRecordDao.getTall();
+        if (tall == 0) {
+            tall = DatabaseContract.Setting.DEFAULT_TALL;
+        }
+        lengths = (double) tall * 45 / 100;
 
         if (!wifiAsked) {
             //Log.v("exec wifiAsked","" + wifiAsked);
@@ -584,7 +589,7 @@ private static final String TAG = "MainActivity";
      */
     private void stepCalc(){
 
-        BigDecimal bi = new BigDecimal(lengthS);
+        BigDecimal bi = new BigDecimal(lengths);
         double stepSize= bi.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
 
         stepCont = (int) ((mMeter*100)/ stepSize); //cm単位で計算
@@ -704,6 +709,9 @@ private static final String TAG = "MainActivity";
 
                     Log.d(TAG, "■経路取得開始");
                     int interval = walkRecordDao.getInterval();
+                    if (interval == 0) {
+                        interval = DatabaseContract.Setting.DEFAULT_INTERVAL;
+                    }
                     LOCATION_REQUEST.setInterval(interval);
                     mStart = true;
                     mFirst = true;

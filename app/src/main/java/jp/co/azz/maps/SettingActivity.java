@@ -23,6 +23,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     String msg;
 
     private String spinnerItems[] = {"1", "5", "10", "15", "30", "45", "60"};
+    int currentTall = 0;
 
     ///////////// ダミーモード設定 /////////////
     private Switch dummyModeSwitch;
@@ -58,8 +59,12 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         // スピナーにセット
         spinner.setSelection(initPosition,false);
 
-        TextView tall = (TextView) findViewById(R.id.tall);
-        tall.setText(String.valueOf(walkRecordDao.getTall()));
+        // 身長のDB保存値があればセット
+        currentTall = walkRecordDao.getTall();
+        if (currentTall > 0) {
+            TextView tall = findViewById(R.id.tall);
+            tall.setText(String.valueOf(walkRecordDao.getTall()));
+        }
 
         this.viewSetting();
 
@@ -93,8 +98,14 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 walkRecordDao.updateInterval(Integer.parseInt(interval));
 
                 String selectTall = ((TextView)this.findViewById(R.id.tall)).getText().toString();
-                selectTall = selectTall.isEmpty() ? "170" : selectTall;
-                walkRecordDao.updateTall(Integer.parseInt(selectTall));
+                // 入力された場合のみ更新
+                if (!selectTall.isEmpty()) {
+                    if (currentTall > 0) {
+                        walkRecordDao.updateTall(Integer.parseInt(selectTall));
+                    } else {
+                        walkRecordDao.insertTall(Integer.parseInt(selectTall));
+                    }
+                }
 
                 /////////////////////////////////// ダミーモード設定 /////////////////////////////////
 
