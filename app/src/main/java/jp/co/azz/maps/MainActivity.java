@@ -190,7 +190,7 @@ public class MainActivity extends ActivityBase
 
         //歩幅を取得（身長*0.45）
         //TODO 設定から取得する
-        lengthS = 160 * 0.45;
+        lengths = 160 * 0.45;
 
         this.viewSetting();
 
