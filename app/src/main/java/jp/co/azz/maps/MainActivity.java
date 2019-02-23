@@ -99,6 +99,9 @@ private static final String TAG = "MainActivity";
     //歩数取得
     private int stepCont;
     private double lengths;
+    //消費カロリー取得
+    private int burnedCalories;
+    private double weight;
 
     ///////////// ダミーモード設定 /////////////
     SharedPreferences saveData;
@@ -211,6 +214,12 @@ private static final String TAG = "MainActivity";
             tall = DatabaseContract.Setting.DEFAULT_TALL;
         }
         lengths = (double) tall * 45 / 100;
+
+        //体重を取得
+        weight = walkRecordDao.getWeight();
+        if (weight == 0) {
+            weight = DatabaseContract.Setting.DEFAULT_WEIGHT;
+        }
 
         if (!wifiAsked) {
             //Log.v("exec wifiAsked","" + wifiAsked);
@@ -533,6 +542,8 @@ private static final String TAG = "MainActivity";
 
                 // 歩数計算
                 stepCalc();
+                // 消費カロリー計算
+                calorieCalc();
 
                 //座標更新、履歴テーブル更新
                 updateWalkRecord(currentLatLng);
@@ -596,6 +607,18 @@ private static final String TAG = "MainActivity";
 
         TextView main_step = findViewById(R.id.main_step);
         main_step.setText(stepCont + "歩");
+    }
+
+    /**
+     * 体重から消費カロリーを計算する
+     */
+    private void calorieCalc(){
+
+        //List<HistoryDto> walkingTime = walkRecordDao.selectHistory().;
+        burnedCalories = (int) (1.05 * 3.5 * weight); //kcal単位で計算
+
+        TextView main_calorie = findViewById(R.id.main_calorie);
+        main_calorie.setText(burnedCalories + "kcal");
     }
 
     /**
@@ -677,7 +700,7 @@ private static final String TAG = "MainActivity";
         TextView endTimeView = this.findViewById(R.id.main_end_time);
         endTimeView.setText(endTime);
         // ダミー値
-        walkRecordDao.updateHistory(walkHistoryNum, endTime, stepCont, mMeter);
+        walkRecordDao.updateHistory(walkHistoryNum, endTime, stepCont, mMeter, burnedCalories);
     }
 
     private void showToast(String msg) {

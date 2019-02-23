@@ -24,6 +24,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
     private String spinnerItems[] = {"1", "5", "10", "15", "30", "45", "60"};
     int currentTall = 0;
+    int currentWeight = 0;
 
     ///////////// ダミーモード設定 /////////////
     private Switch dummyModeSwitch;
@@ -66,6 +67,12 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             tall.setText(String.valueOf(walkRecordDao.getTall()));
         }
 
+        // 体重のDB保存値があればセット
+        currentWeight = walkRecordDao.getWeight();
+        if (currentWeight > 0) {
+            TextView weight = findViewById(R.id.weight);
+            weight.setText(String.valueOf(walkRecordDao.getWeight()));
+        }
         this.viewSetting();
 
         ///////////////////////// ダミーモード設定 ///////////////////////////////////////////
@@ -104,6 +111,15 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                         walkRecordDao.updateTall(Integer.parseInt(selectTall));
                     } else {
                         walkRecordDao.insertTall(Integer.parseInt(selectTall));
+                    }
+                }
+                String selectWeight = ((TextView)this.findViewById(R.id.weight)).getText().toString();
+                // 入力された場合のみ更新
+                if (!selectWeight.isEmpty()) {
+                    if (currentWeight > 0) {
+                        walkRecordDao.updateWeight(Integer.parseInt(selectWeight));
+                    } else {
+                        walkRecordDao.insertWeight(Integer.parseInt(selectWeight));
                     }
                 }
 

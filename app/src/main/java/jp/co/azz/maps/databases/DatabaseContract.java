@@ -73,8 +73,10 @@ public final class DatabaseContract {
                         ")";
         public static final String SETTING_INTERVAL = "interval";
         public static final String SETTING_TALL = "tall";
+        public static final String SETTING_WEIGHT = "weight";
         public static final int DEFAULT_INTERVAL = 5000;
         public static final int DEFAULT_TALL = 170;
+        public static final int DEFAULT_WEIGHT = 50;
 
         public static void create(SQLiteDatabase db) {
             db.execSQL(DatabaseContract.Setting.CREATE_TABLE_SQL);

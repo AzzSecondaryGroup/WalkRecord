@@ -100,12 +100,14 @@ public class WalkRecordDao {
     public void updateHistory(long ID,
                               String end_date,
                               int number_of_steps,
-                              double distance){
+                              double distance,
+                              int calorie){
         //history(履歴テーブル)UPDATE文
         ContentValues cv = new ContentValues();
         cv.put(DatabaseContract.History.COLUMN_END_DATE, end_date);
         cv.put(DatabaseContract.History.COLUMN_NUMBER_OF_STEPS, number_of_steps);
         cv.put(DatabaseContract.History.COLUMN_DISTANCE, distance);
+        cv.put(DatabaseContract.History.COLUMN_CALOLIE, calorie);
         SQLiteDatabase db = dataBaseHelper.getWritableDatabase();
         db.update(DatabaseContract.History.TABLE_NAME, cv, DatabaseContract.History._ID + " = "+ ID , null);
 
@@ -275,6 +277,59 @@ public class WalkRecordDao {
         ContentValues cv = new ContentValues();
         cv.put(DatabaseContract.Setting.COLUMN_KEY, DatabaseContract.Setting.SETTING_TALL);
         cv.put(DatabaseContract.Setting.COLUMN_VALUE, tall);
+        db.insert(DatabaseContract.Setting.TABLE_NAME,
+                null,
+                cv);
+    }
+    /**
+     * 体重を取得する
+     */
+    public int getWeight() {
+        int rtnWeight = 0;
+
+        SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+        Cursor c = db.query(
+                DatabaseContract.Setting.TABLE_NAME,
+                null,
+                DatabaseContract.Setting.COLUMN_KEY + " = ?",
+                new String[] {DatabaseContract.Setting.SETTING_WEIGHT},
+                null,
+                null,
+                null,
+                null
+        );
+
+        if(c.moveToFirst()){
+            rtnWeight = c.getInt(c.getColumnIndex(DatabaseContract.Setting.COLUMN_VALUE));
+        }
+
+        c.close();
+        return rtnWeight;
+    }
+
+    /**
+     * 体重を更新する
+     * @param weight 体重
+     */
+    public void updateWeight(int weight) {
+        SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseContract.Setting.COLUMN_VALUE, weight);
+        db.update(DatabaseContract.Setting.TABLE_NAME,
+                cv
+                , DatabaseContract.Setting.COLUMN_KEY + " = ?"
+                ,new String[]{DatabaseContract.Setting.SETTING_WEIGHT});
+    }
+
+    /**
+     * 体重をinsertする
+     * @param weight 体重
+     */
+    public void insertWeight(int weight) {
+        SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseContract.Setting.COLUMN_KEY, DatabaseContract.Setting.SETTING_WEIGHT);
+        cv.put(DatabaseContract.Setting.COLUMN_VALUE, weight);
         db.insert(DatabaseContract.Setting.TABLE_NAME,
                 null,
                 cv);
