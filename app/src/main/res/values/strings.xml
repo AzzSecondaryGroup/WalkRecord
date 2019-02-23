@@ -28,5 +28,5 @@
     <string name="alert_dialog_cancel">CANCEL</string>
     <string name="view_calorie_calculation">消費カロリー</string>
     <string name="view_setting">設定画面</string>
-    <string name="view_detail">詳細</string>
+    <string name="view_detail">お散歩履歴詳細</string>
 </resources>
