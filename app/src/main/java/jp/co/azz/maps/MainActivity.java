@@ -20,6 +20,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -59,9 +60,9 @@ import jp.co.azz.maps.databases.HistoryDto;
 import jp.co.azz.maps.databases.WalkRecordDao;
 
 
-public class MainActivity extends ActivityBase
+public class MainActivity extends AppCompatActivity
         implements OnMapReadyCallback,
-        ConnectionCallbacks, OnConnectionFailedListener, LocationListener, View.OnClickListener {
+        ConnectionCallbacks, OnConnectionFailedListener, LocationListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity";
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
@@ -136,9 +137,21 @@ public class MainActivity extends ActivityBase
      *
      * @param savedInstanceState
      */
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
         // ****************** デバッグ用散歩履歴件数表示 ******************
         walkRecordDao = new WalkRecordDao(getApplicationContext());
@@ -157,18 +170,6 @@ public class MainActivity extends ActivityBase
         }
 
         // ****************************************************************
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
 
         // 画面をスリープにしない
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -196,9 +197,21 @@ public class MainActivity extends ActivityBase
 
     }
 
-    @Override
-    protected int getLayoutId() {
-        return R.layout.activity_main;
+    @SuppressWarnings("StatementWithEmptyBody")
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.walk_history) {
+            Intent intent = new Intent(getApplication(), WalkHistoryActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.setting) {
+            Intent intent = new Intent(getApplication(), SettingActivity.class);
+            startActivity(intent);
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     /**
@@ -266,24 +279,6 @@ public class MainActivity extends ActivityBase
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.walk_history) {
-            Intent intent = new Intent(getApplication(), WalkHistoryActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.setting) {
-            Intent intent = new Intent(getApplication(), SettingActivity.class);
-            startActivity(intent);
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     /**
@@ -603,7 +598,7 @@ public class MainActivity extends ActivityBase
     private void stepCalc() {
 
         BigDecimal bi = new BigDecimal(lengths);
-        double stepSize= bi.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+        double stepSize = bi.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
 
         stepCont = (int) ((mMeter * 100) / stepSize); //cm単位で計算
 

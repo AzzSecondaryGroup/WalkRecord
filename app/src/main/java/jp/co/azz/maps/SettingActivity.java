@@ -1,8 +1,16 @@
 package jp.co.azz.maps;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -14,7 +22,7 @@ import android.widget.Toast;
 
 import jp.co.azz.maps.databases.WalkRecordDao;
 
-public class SettingActivity extends ActivityBase implements View.OnClickListener{
+    public class SettingActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     String TAG = SettingActivity.class.getName();
     private WalkRecordDao walkRecordDao;
@@ -31,13 +39,22 @@ public class SettingActivity extends ActivityBase implements View.OnClickListene
     ///////////////////////////////////////
 
     @Override
-    public int getLayoutId() {
-        return R.layout.activity_setting;
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.nav_setting);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar2);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout2);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view2);
+        navigationView.setNavigationItemSelectedListener(this);
+
 
         walkRecordDao = new WalkRecordDao(getApplicationContext());
         final int interval = walkRecordDao.getInterval();
@@ -54,13 +71,13 @@ public class SettingActivity extends ActivityBase implements View.OnClickListene
         // spinner に adapter をセット
         spinner.setAdapter(adapter);
         // 地図表示間隔のDB保存値からスピナーの初期表示位置を取得
-        int initPosition = adapter.getPosition(String.valueOf(interval/1000));
+        int initPosition = adapter.getPosition(String.valueOf(interval / 1000));
         // ポジション取得失敗(-1)の場合はひとまず5秒の位置を設定しておく
         if (initPosition == -1) {
             initPosition = 1;
         }
         // スピナーにセット
-        spinner.setSelection(initPosition,false);
+        spinner.setSelection(initPosition, false);
 
         // 身長のDB保存値があればセット
         currentTall = walkRecordDao.getTall();
@@ -78,17 +95,37 @@ public class SettingActivity extends ActivityBase implements View.OnClickListene
         boolean isDummy = saveData.getBoolean("dummyModeKey", false);
         dummyModeSwitch.setChecked(isDummy);
         isDummyMode = isDummy;
-        
+
         // ダミーモードSwitch変更時の状態を退避
         dummyModeSwitch.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         isDummyMode = isChecked;
                     }
                 }
         );
         ////////////////////////////////////////////////////////////////////////////////////
     }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.main) {
+            Intent intent = new Intent(getApplication(), MainActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.walk_history) {
+            Intent intent = new Intent(getApplication(), WalkHistoryActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.setting) {
+            Intent intent = new Intent(getApplication(), SettingActivity.class);
+            startActivity(intent);
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout2);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
 
     @Override
     public void onClick(View view) {
@@ -100,7 +137,7 @@ public class SettingActivity extends ActivityBase implements View.OnClickListene
                 String interval = String.valueOf(Integer.valueOf(item) * 1000);
                 walkRecordDao.updateInterval(Integer.parseInt(interval));
 
-                String selectTall = ((TextView)this.findViewById(R.id.tall)).getText().toString();
+                String selectTall = ((TextView) this.findViewById(R.id.tall)).getText().toString();
                 // 入力された場合のみ更新
                 if (!selectTall.isEmpty()) {
                     if (currentTall > 0) {
