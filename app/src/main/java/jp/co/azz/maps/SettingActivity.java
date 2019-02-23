@@ -1,9 +1,16 @@
 package jp.co.azz.maps;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -15,7 +22,7 @@ import android.widget.Toast;
 
 import jp.co.azz.maps.databases.WalkRecordDao;
 
-public class SettingActivity extends AppCompatActivity implements View.OnClickListener{
+public class SettingActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener{
 
     String TAG = SettingActivity.class.getName();
     private WalkRecordDao walkRecordDao;
@@ -35,7 +42,18 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_setting);
+        setContentView(R.layout.nav_setting);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar2);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout2);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view2);
+        navigationView.setNavigationItemSelectedListener(this);
 
         walkRecordDao = new WalkRecordDao(getApplicationContext());
         final int interval = walkRecordDao.getInterval();
@@ -82,7 +100,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         boolean isDummy = saveData.getBoolean("dummyModeKey", false);
         dummyModeSwitch.setChecked(isDummy);
         isDummyMode = isDummy;
-        
+
         // ダミーモードSwitch変更時の状態を退避
         dummyModeSwitch.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
@@ -92,6 +110,25 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 }
         );
         ////////////////////////////////////////////////////////////////////////////////////
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.main) {
+            Intent intent = new Intent(getApplication(), MainActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.walk_history) {
+            Intent intent = new Intent(getApplication(), WalkHistoryActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.setting) {
+            Intent intent = new Intent(getApplication(), SettingActivity.class);
+            startActivity(intent);
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout2);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     @Override
