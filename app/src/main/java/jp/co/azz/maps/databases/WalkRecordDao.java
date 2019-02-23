@@ -3,17 +3,14 @@ package jp.co.azz.maps.databases;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.DatabaseUtils;
-import android.provider.ContactsContract;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 
@@ -191,10 +188,9 @@ public class WalkRecordDao {
 
     /**
      * GPS取得の間隔を取得する
-     * 設定がなければ1000msとしている
      */
-    @Nullable
     public int getInterval() {
+        int rtnInterval = 0;
 
         SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
         Cursor c = db.query(
@@ -209,20 +205,78 @@ public class WalkRecordDao {
         );
 
         if(c.moveToFirst()){
-            return c.getInt(c.getColumnIndex(DatabaseContract.Setting.COLUMN_VALUE));
+            rtnInterval = c.getInt(c.getColumnIndex(DatabaseContract.Setting.COLUMN_VALUE));
         }
 
-        return 1000;
+        c.close();
+        return rtnInterval;
     }
 
+    /**
+     * 位置情報の取得間隔を更新
+     * @param interval 更新間隔
+     */
     public void updateInterval(int interval){
         SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put(DatabaseContract.Setting.COLUMN_KEY, "interval");
         cv.put(DatabaseContract.Setting.COLUMN_VALUE, interval);
         db.update(DatabaseContract.Setting.TABLE_NAME,
            cv
-            ,null
-            ,null);
+            , DatabaseContract.Setting.COLUMN_KEY + " = ?"
+            ,new String[]{DatabaseContract.Setting.SETTING_INTERVAL});
+    }
+
+    /**
+     * 身長を取得する
+     */
+    public int getTall() {
+        int rtnTall = 0;
+
+        SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+        Cursor c = db.query(
+                DatabaseContract.Setting.TABLE_NAME,
+                null,
+                DatabaseContract.Setting.COLUMN_KEY + " = ?",
+                new String[] {DatabaseContract.Setting.SETTING_TALL},
+                null,
+                null,
+                null,
+                null
+        );
+
+        if(c.moveToFirst()){
+            rtnTall = c.getInt(c.getColumnIndex(DatabaseContract.Setting.COLUMN_VALUE));
+        }
+
+        c.close();
+        return rtnTall;
+    }
+
+    /**
+     * 身長を更新する
+     * @param tall 身長
+     */
+    public void updateTall(int tall) {
+        SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseContract.Setting.COLUMN_VALUE, tall);
+        db.update(DatabaseContract.Setting.TABLE_NAME,
+                cv
+                , DatabaseContract.Setting.COLUMN_KEY + " = ?"
+                ,new String[]{DatabaseContract.Setting.SETTING_TALL});
+    }
+
+    /**
+     * 身長をinsertする
+     * @param tall 身長
+     */
+    public void insertTall(int tall) {
+        SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseContract.Setting.COLUMN_KEY, DatabaseContract.Setting.SETTING_TALL);
+        cv.put(DatabaseContract.Setting.COLUMN_VALUE, tall);
+        db.insert(DatabaseContract.Setting.TABLE_NAME,
+                null,
+                cv);
     }
 }

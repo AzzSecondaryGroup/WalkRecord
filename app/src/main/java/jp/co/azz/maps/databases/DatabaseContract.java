@@ -1,14 +1,8 @@
 package jp.co.azz.maps.databases;
 
 import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class DatabaseContract {
 
@@ -68,7 +62,7 @@ public final class DatabaseContract {
 
     public static abstract class Setting implements BaseColumns {
         public static final String TABLE_NAME = "settings";
-        public static final String COLUMN_KEY = "key";
+        public static final String COLUMN_KEY = "set_key";
         public static final String COLUMN_VALUE = "value";
 
         static final String CREATE_TABLE_SQL =
@@ -77,17 +71,24 @@ public final class DatabaseContract {
                         + COLUMN_KEY + " TEXT NOT NULL,"
                         + COLUMN_VALUE + " TEXT NOT NULL" +
                         ")";
-        static final String SETTING_INTERVAL = "interval";
+        public static final String SETTING_INTERVAL = "interval";
+        public static final String SETTING_TALL = "tall";
+        public static final int DEFAULT_INTERVAL = 5000;
+        public static final int DEFAULT_TALL = 170;
 
         public static void create(SQLiteDatabase db) {
             db.execSQL(DatabaseContract.Setting.CREATE_TABLE_SQL);
             insertDefault(db);
         }
 
+        /**
+         * 設定テーブルの初期値をInsert（初期値でInsertするのは地図情報取得間隔のみとする）
+         * @param db
+         */
         private static void insertDefault(SQLiteDatabase db) {
             ContentValues cv = new ContentValues();
-            cv.put(COLUMN_KEY, "interval");
-            cv.put(COLUMN_VALUE, 500);
+            cv.put(COLUMN_KEY, SETTING_INTERVAL);
+            cv.put(COLUMN_VALUE, DEFAULT_INTERVAL);
             db.insert(TABLE_NAME, null, cv);
         }
     }

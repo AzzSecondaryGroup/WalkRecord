@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import jp.co.azz.maps.databases.WalkRecordDao;
@@ -22,6 +23,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     String msg;
 
     private String spinnerItems[] = {"1", "5", "10", "15", "30", "45", "60"};
+    int currentTall = 0;
 
     ///////////// ダミーモード設定 /////////////
     private Switch dummyModeSwitch;
@@ -57,6 +59,13 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         // スピナーにセット
         spinner.setSelection(initPosition,false);
 
+        // 身長のDB保存値があればセット
+        currentTall = walkRecordDao.getTall();
+        if (currentTall > 0) {
+            TextView tall = findViewById(R.id.tall);
+            tall.setText(String.valueOf(walkRecordDao.getTall()));
+        }
+
         this.viewSetting();
 
         ///////////////////////// ダミーモード設定 ///////////////////////////////////////////
@@ -88,6 +97,16 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 String interval = String.valueOf(Integer.valueOf(item) * 1000);
                 walkRecordDao.updateInterval(Integer.parseInt(interval));
 
+                String selectTall = ((TextView)this.findViewById(R.id.tall)).getText().toString();
+                // 入力された場合のみ更新
+                if (!selectTall.isEmpty()) {
+                    if (currentTall > 0) {
+                        walkRecordDao.updateTall(Integer.parseInt(selectTall));
+                    } else {
+                        walkRecordDao.insertTall(Integer.parseInt(selectTall));
+                    }
+                }
+
                 /////////////////////////////////// ダミーモード設定 /////////////////////////////////
 
                 // ダミーモードの設定状態を保存
@@ -98,6 +117,10 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         }
         msg = "設定を更新しました";
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+
+        // 保存後、設定画面を終了させる
+        finish();
+
     }
 
     /**

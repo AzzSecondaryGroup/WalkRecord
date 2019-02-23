@@ -112,9 +112,6 @@ public class DetailActivity extends ActivityBase
             case R.id.walk_history:
                 intent = new Intent(getApplication(), WalkHistoryActivity.class);
                 break;
-            case R.id.calorie_calculation:
-                intent = new Intent(getApplication(), CalorieCalculationActivity.class);
-                break;
             case R.id.setting:
                 intent = new Intent(getApplication(), SettingActivity.class);
                 break;
