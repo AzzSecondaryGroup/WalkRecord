@@ -3,7 +3,6 @@ package jp.co.azz.maps;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -15,7 +14,7 @@ import android.widget.Toast;
 
 import jp.co.azz.maps.databases.WalkRecordDao;
 
-public class SettingActivity extends AppCompatActivity implements View.OnClickListener{
+public class SettingActivity extends ActivityBase implements View.OnClickListener{
 
     String TAG = SettingActivity.class.getName();
     private WalkRecordDao walkRecordDao;
@@ -32,9 +31,13 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     ///////////////////////////////////////
 
     @Override
+    public int getLayoutId() {
+        return R.layout.activity_setting;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_setting);
 
         walkRecordDao = new WalkRecordDao(getApplicationContext());
         final int interval = walkRecordDao.getInterval();

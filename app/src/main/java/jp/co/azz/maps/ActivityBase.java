@@ -27,6 +27,7 @@ public abstract class ActivityBase extends AppCompatActivity
         setContentView(this.getLayoutId());
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -44,9 +45,6 @@ public abstract class ActivityBase extends AppCompatActivity
 
         if (id == R.id.walk_history) {
             Intent intent = new Intent(getApplication(), WalkHistoryActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.calorie_calculation) {
-            Intent intent = new Intent(getApplication(), CalorieCalculationActivity.class);
             startActivity(intent);
         } else if (id == R.id.setting) {
             Intent intent = new Intent(getApplication(), SettingActivity.class);

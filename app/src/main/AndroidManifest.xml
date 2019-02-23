@@ -41,7 +41,7 @@ The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                    <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -57,6 +57,7 @@ The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
         <activity
             android:name=".SettingActivity"
             android:label="@string/view_setting"
+            android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait"></activity>
         <activity
             android:name=".DetailActivity"
