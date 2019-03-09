@@ -130,7 +130,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="消費カロリー："
+                    android:text="消費ｶﾛﾘｰ："
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintHorizontal_bias="0.9"
                     app:layout_constraintLeft_toLeftOf="parent"
@@ -142,7 +142,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="0cal"
+                    android:text="0kcal"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintHorizontal_bias="0.9"
                     app:layout_constraintLeft_toLeftOf="parent"

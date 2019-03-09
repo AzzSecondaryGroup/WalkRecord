@@ -8,11 +8,11 @@
 
     <string name="hd_start_time">開始時刻</string>
     <string name="hd_end_time">終了時刻</string>
-    <string name="hd_distance">歩いた距離</string>
+    <string name="hd_distance">距離</string>
     <string name="km">km</string>
     <string name="hd_step">歩数</string>
     <string name="step">歩</string>
-    <string name="hd_calorie">消費カロリー</string>
+    <string name="hd_calorie">消費ｶﾛﾘｰ</string>
     <string name="calorie">kcal</string>
     <string name="text_on">Stop</string>
     <string name="text_off">Start</string>
@@ -26,7 +26,7 @@
     <string name="alert_dialog_no">NO</string>
     <string name="alert_dialog_ok">OK</string>
     <string name="alert_dialog_cancel">CANCEL</string>
-    <string name="view_calorie_calculation">消費カロリー</string>
+    <string name="view_calorie_calculation">消費ｶﾛﾘｰ</string>
     <string name="view_setting">設定画面</string>
     <string name="view_detail">お散歩履歴詳細</string>
 </resources>
