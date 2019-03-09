@@ -102,6 +102,7 @@ private static final String TAG = "MainActivity";
     //消費カロリー取得
     private int burnedCalories;
     private double weight;
+    private int speed = 4 ;//時速(km/hr)
 
     ///////////// ダミーモード設定 /////////////
     SharedPreferences saveData;
@@ -615,7 +616,8 @@ private static final String TAG = "MainActivity";
     private void calorieCalc(){
 
         //List<HistoryDto> walkingTime = walkRecordDao.selectHistory().;
-        burnedCalories = (int) (1.05 * 3.5 * weight); //kcal単位で計算
+        //カロリー計算は、距離/時速で所要時間を時間単位で計算し、所要時間からカロリー計算を実施。
+        burnedCalories = (int) (1.05 * 3.5 * weight * ( (mMeter / 1000 ) / speed ) ); //kcal単位で計算
 
         TextView main_calorie = findViewById(R.id.main_calorie);
         main_calorie.setText(burnedCalories + "kcal");
