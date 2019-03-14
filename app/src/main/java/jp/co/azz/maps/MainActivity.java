@@ -560,16 +560,12 @@ private static final String TAG = "MainActivity";
      */
     private void drawTrace(LatLng latlng) {
         mRunList.add(latlng);
-        if (mRunList.size() > 2) {
-            PolylineOptions polyOptions = new PolylineOptions();
-            for (LatLng polyLatLng : mRunList) {
-                polyOptions.add(polyLatLng);
-            }
-            polyOptions.color(Color.BLUE);
-            polyOptions.width(3);
-            polyOptions.geodesic(false);
-            mMap.addPolyline(polyOptions);
-        }
+        PolylineOptions polyOptions = new PolylineOptions();
+        polyOptions.addAll(mRunList);
+        polyOptions.color(Color.BLUE);
+        polyOptions.width(3);
+        polyOptions.geodesic(false);
+        mMap.addPolyline(polyOptions);
     }
 
     /**
@@ -737,6 +733,7 @@ private static final String TAG = "MainActivity";
                     if (interval == 0) {
                         interval = DatabaseContract.Setting.DEFAULT_INTERVAL;
                     }
+                    Log.d(TAG, "■インターバル"+ interval);
                     LOCATION_REQUEST.setInterval(interval);
                     mStart = true;
                     mFirst = true;
