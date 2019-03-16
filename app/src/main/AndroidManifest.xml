@@ -17,9 +17,6 @@ The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <!-- WIFIの状態を知り、変更するためのパーミッションを追加する　 -->
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
     <application
         android:allowBackup="true"

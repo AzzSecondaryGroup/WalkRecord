@@ -18,10 +18,6 @@
     <string name="text_off">Start</string>
     <string name="location_unauthorized_msg">位置情報にアクセスできないため、地図を動かすことができません</string>
 
-    <string name="wifi_confirm_dialog_title">WIFIをオフにしますか</string>
-    <string name="wifi_confirm_dialog_message">散歩途中に自動でWIFI接続した場合、現在地が正しく取得できないことがあります</string>
-    <string name="save_confirm_dialog_title">このお散歩を記録しますか</string>
-
     <string name="alert_dialog_yes">YES</string>
     <string name="alert_dialog_no">NO</string>
     <string name="alert_dialog_ok">OK</string>

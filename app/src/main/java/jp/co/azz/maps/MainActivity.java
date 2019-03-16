@@ -1,15 +1,12 @@
 package jp.co.azz.maps;
 
 import android.Manifest;
-import android.app.DialogFragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -83,14 +80,11 @@ private static final String TAG = "MainActivity";
     private FusedLocationProviderApi fusedLocationProviderApi = LocationServices.FusedLocationApi;
     // 移動経路を描くための情報のリスト
     private List<LatLng> mRunList = new ArrayList<LatLng>();
-    private WifiManager wifiManager;
-    private boolean mWifiOff = false;
     private double mMeter = 0.0;           // メートル
     private DatabaseHelper dbHelper;
     private boolean mStart = false;
     private boolean mFirst = false;
     private boolean mStop = true;   // 開始時は停止
-    private boolean wifiAsked = false;
     private WalkRecordDao walkRecordDao;
     private int walkHistoryNum = 0;
     private boolean isFirstMapDisp = true;  // MAP最初の表示かどうか
@@ -118,7 +112,6 @@ private static final String TAG = "MainActivity";
         super.onSaveInstanceState(outState);
         // メンバー変数の状態を保存
         outState.putBoolean("IS_FIRST_MAP_DISP", isFirstMapDisp);
-        outState.putBoolean("WIFI_ASKED",wifiAsked);
     }
 
     /**
@@ -131,7 +124,6 @@ private static final String TAG = "MainActivity";
         super.onRestoreInstanceState(savedInstanceState);
         // メンバー変数の状態を復元
         isFirstMapDisp = savedInstanceState.getBoolean("IS_FIRST_MAP_DISP");
-        wifiAsked = savedInstanceState.getBoolean("WIFI_ASKED");
     }
 
     /**
@@ -204,8 +196,8 @@ private static final String TAG = "MainActivity";
     protected void onResume() {
         super.onResume();
         //////////////////////////////////// ダミーモード設定値取得 ////////////////////////////////////////
-        saveData = getSharedPreferences("SettingData", Context.MODE_PRIVATE);
-        isDummyMode = saveData.getBoolean("dummyModeKey", false);
+//        saveData = getSharedPreferences("SettingData", Context.MODE_PRIVATE);
+//        isDummyMode = saveData.getBoolean("dummyModeKey", false);
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         walkRecordDao = new WalkRecordDao(getApplicationContext());
@@ -220,13 +212,6 @@ private static final String TAG = "MainActivity";
         weight = walkRecordDao.getWeight();
         if (weight == 0) {
             weight = DatabaseContract.Setting.DEFAULT_WEIGHT;
-        }
-
-        if (!wifiAsked) {
-            //Log.v("exec wifiAsked","" + wifiAsked);
-            // WiFiをオフにするかどうか確認
-            wifiConfirm();
-            wifiAsked = !wifiAsked;
         }
 
         // Google Playサービスに接続する
@@ -411,33 +396,6 @@ private static final String TAG = "MainActivity";
             // MyLocationButtonを有効に
             settings.setMyLocationButtonEnabled(true);
         }
-    }
-
-    /**
-     * WiFiをオフにするかどうか確認するダイアログ
-     * （WiFiがオンの場合、近くのWiFiをキャッチして現在地がぶれる可能性があるため）
-     */
-    private void wifiConfirm(){
-        wifiManager = (WifiManager)getApplicationContext().getSystemService(WIFI_SERVICE);
-
-        if(wifiManager.isWifiEnabled()) {
-            wifiConfirmDialog();
-        }
-    }
-    private void wifiConfirmDialog() {
-        DialogFragment newFragment = WifiConfirmDialogFragment.newInstance(
-                R.string.wifi_confirm_dialog_title, R.string.wifi_confirm_dialog_message);
-
-        newFragment.show(getFragmentManager(), "dialog");
-
-    }
-
-    /**
-     * WiFiをオフにする
-     */
-    public void wifiOff() {
-        wifiManager.setWifiEnabled(false);
-        mWifiOff=true;
     }
 
     /**
@@ -640,10 +598,6 @@ private static final String TAG = "MainActivity";
     @Override
     protected void onStop() {
         super.onStop();
-        // 自プログラムがオフにした場合はWIFIをオンにする処理
-        if (mWifiOff) {
-            wifiManager.setWifiEnabled(true);
-        }
     }
 
     /**
@@ -866,12 +820,6 @@ private static final String TAG = "MainActivity";
 
         // 権限、位置情報設定ともに問題ない場合
         if (isLocationAuthorityReady) {
-            if (!wifiAsked) {
-                //Log.v("exec wifiAsked","" + wifiAsked);
-                // WiFiをオフにするかどうか確認
-                wifiConfirm();
-                wifiAsked = !wifiAsked;
-            }
 
             // Google Playサービスに接続する
             googleApiConnect();
