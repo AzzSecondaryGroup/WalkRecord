@@ -4,8 +4,6 @@ import android.database.Cursor;
 
 import java.math.BigDecimal;
 
-import jp.co.azz.maps.databases.DatabaseContract;
-
 import static java.math.BigDecimal.ROUND_DOWN;
 
 public class HistoryDto {
@@ -62,7 +60,7 @@ public class HistoryDto {
         return endDate;
     }
 
-    public int getNumberOfSteps() { return numberOfSteps; }
+    public String getNumberOfSteps() { return numberOfSteps + "歩"; }
 
     public String getKilometer() {
         if (this.distance > 0) {

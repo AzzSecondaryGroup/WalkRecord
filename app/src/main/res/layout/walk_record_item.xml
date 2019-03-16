@@ -40,9 +40,7 @@
             android:id="@+id/end_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingLeft="5dp" />
-
+            android:layout_weight="1" />
     </LinearLayout>
 
     <LinearLayout
@@ -58,32 +56,26 @@
 
         <TextView
             android:id="@+id/distance"
-            android:paddingLeft="10dp"
             android:textSize= "16sp"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             />
 
         <TextView
-            android:text=" 歩数"
+            android:text="@string/hd_step"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             />
 
         <TextView
             android:id="@+id/step_cnt"
-            android:paddingLeft="10dp"
             android:textSize= "16sp"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             />
 
-        <TextView
-            android:text="歩 "
-            android:textSize= "16sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            />
 
         <TextView
             android:text="@string/hd_calorie"
@@ -93,9 +85,9 @@
 
         <TextView
             android:id="@+id/calorie"
-            android:paddingLeft="10dp"
             android:textSize= "16sp"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             />
 

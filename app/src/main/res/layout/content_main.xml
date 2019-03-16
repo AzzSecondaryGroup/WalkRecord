@@ -15,7 +15,7 @@
         android:orientation="vertical">
 
         <TableLayout
-            android:padding="5dp"
+            android:padding="3dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -80,7 +80,9 @@
             android:layout_marginTop="-1dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingLeft="3dp"
+            android:background="@drawable/outside_frame">
 
             <TableRow>
                 <TextView
