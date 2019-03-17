@@ -1,6 +1,7 @@
 package jp.co.azz.maps;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -98,6 +99,9 @@ private static final String TAG = "MainActivity";
     private double weight;
     private int speed = 4 ;//時速(km/hr)
 
+    // Map初期表示位置をローカルファイルに保持しておくために使用
+    SharedPreferences posData;
+
     ///////////// ダミーモード設定 /////////////
     SharedPreferences saveData;
     boolean isDummyMode = false;
@@ -186,6 +190,7 @@ private static final String TAG = "MainActivity";
 
         this.viewSetting();
 
+        posData = getSharedPreferences("PositionData", Context.MODE_PRIVATE);
     }
 
     /**
@@ -282,11 +287,18 @@ private static final String TAG = "MainActivity";
         PolylineOptions option = PolyLineOptionsFactory.create();
         mMap.addPolyline(option);
 
-//        // 位置座標のインスタンスを作成(緯度、経度)
-//        // ダミー
-//        CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(
-//                new LatLng(35.712206, 139.706787), 15);
-//        mMap.moveCamera(cUpdate);
+        // Map初期表示用の位置座標のインスタンスを作成(緯度、経度)
+        float latitude = posData.getFloat("latitude", 0.0f);
+        float longitude = posData.getFloat("longitude", 0.0f);
+        LatLng initLatLng;
+        if (latitude == 0.0f || longitude == 0.0f) {
+            // 取得できないときはダミー（高田馬場を表示）
+            initLatLng = new LatLng(35.712206, 139.706787);
+        } else {
+            initLatLng = new LatLng(latitude, longitude);
+        }
+        CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(initLatLng, 16);
+        mMap.moveCamera(cUpdate);
 
         // 位置情報権限周り判定処理
         locationAuthorityJudge();
@@ -432,13 +444,18 @@ private static final String TAG = "MainActivity";
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
         // showToast("currentLatLngの確認"+currentLatLng);
         // まだ一度もMap表示していない場合のみ最初のMap表示を行う
-        // TODO 一瞬世界地図が表示されてしまうので対応要
         if (isFirstMapDisp) {
             // カメラの倍率、ポジション変更
             CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(
             new LatLng(location.getLatitude(), location.getLongitude()), 16);
             mMap.moveCamera(cUpdate);
             Log.d(TAG, "■最初の地図の位置更新");
+
+            // 次の起動時に位置情報がすぐにとれない場合に初期表示する位置として保存する
+            SharedPreferences.Editor editor = posData.edit();
+            editor.putFloat("latitude", (float)location.getLatitude());
+            editor.putFloat("longitude", (float)location.getLongitude());
+            editor.apply();
 
             isFirstMapDisp = false;
         }
