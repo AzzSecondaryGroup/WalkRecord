@@ -4,11 +4,19 @@ import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -18,30 +26,46 @@ import jp.co.azz.maps.databases.WalkRecordDao;
 /**
  * 履歴一覧表示
  */
-public class WalkHistoryActivity extends ListActivity
-        implements AdapterView.OnItemClickListener , AdapterView.OnItemLongClickListener {
+public class WalkHistoryActivity extends AppCompatActivity
+        implements AdapterView.OnItemClickListener , AdapterView.OnItemLongClickListener, NavigationView.OnNavigationItemSelectedListener{
     private WalkRecordAdapter mAdapter;
     // 履歴一覧情報格納用
     private List<HistoryDto> historys;
+
+    ListView listView = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_walk_history);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar3);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
         // リスナー
         // 各履歴タップ時
-        this.getListView().setOnItemClickListener(this);
+        listView = (ListView)this.findViewById(R.id.list);
+        listView.setOnItemClickListener(this);
 
         // リスナー
         //各履歴ロングタップ時 (お散歩履歴削除処理)
-        this.getListView().setOnItemLongClickListener(this);
+        listView.setOnItemLongClickListener(this);
 
         WalkRecordDao walkRecordDao = new WalkRecordDao(this);
         // 散歩履歴情報を取得して一覧に表示
         historys = walkRecordDao.selectHistory();
         mAdapter = new WalkRecordAdapter(this, 0, historys);
-        setListAdapter(mAdapter);
+        listView.setAdapter(mAdapter);
+//        listActivity.setListAdapter(mAdapter);
 
     }
 
@@ -125,7 +149,25 @@ public class WalkHistoryActivity extends ListActivity
         // 散歩履歴情報を再取得してリスト更新
         historys = walkRecordDao.selectHistory();
         mAdapter = new WalkRecordAdapter(this, 0, historys);
-        setListAdapter(mAdapter);
+        listView.setAdapter(mAdapter);
+//        listActivity.setListAdapter(mAdapter);
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.walk_history) {
+            Intent intent = new Intent(getApplication(), WalkHistoryActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.setting) {
+            Intent intent = new Intent(getApplication(), SettingActivity.class);
+            startActivity(intent);
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
 }
