@@ -201,8 +201,8 @@ private static final String TAG = "MainActivity";
     protected void onResume() {
         super.onResume();
         //////////////////////////////////// ダミーモード設定値取得 ////////////////////////////////////////
-        saveData = getSharedPreferences("SettingData", Context.MODE_PRIVATE);
-        isDummyMode = saveData.getBoolean("dummyModeKey", false);
+//        saveData = getSharedPreferences("SettingData", Context.MODE_PRIVATE);
+//        isDummyMode = saveData.getBoolean("dummyModeKey", false);
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         walkRecordDao = new WalkRecordDao(getApplicationContext());
