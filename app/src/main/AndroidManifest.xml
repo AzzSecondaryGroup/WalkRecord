@@ -45,11 +45,8 @@ The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
         </activity>
         <activity
             android:name=".WalkHistoryActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"></activity>
-        <activity
-            android:name=".CalorieCalculationActivity"
-            android:label="@string/view_calorie_calculation"
+            android:label="@string/view_history_list"
+            android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait"></activity>
         <activity
             android:name=".SettingActivity"
