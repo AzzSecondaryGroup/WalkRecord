@@ -65,8 +65,6 @@ public class WalkHistoryActivity extends AppCompatActivity
         historys = walkRecordDao.selectHistory();
         mAdapter = new WalkRecordAdapter(this, 0, historys);
         listView.setAdapter(mAdapter);
-//        listActivity.setListAdapter(mAdapter);
-
     }
 
     @Override
@@ -150,7 +148,6 @@ public class WalkHistoryActivity extends AppCompatActivity
         historys = walkRecordDao.selectHistory();
         mAdapter = new WalkRecordAdapter(this, 0, historys);
         listView.setAdapter(mAdapter);
-//        listActivity.setListAdapter(mAdapter);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
