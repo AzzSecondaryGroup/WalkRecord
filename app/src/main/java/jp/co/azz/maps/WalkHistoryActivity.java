@@ -158,7 +158,10 @@ public class WalkHistoryActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.walk_history) {
+        if (id == R.id.main) {
+            Intent intent = new Intent(getApplication(), MainActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.walk_history) {
             Intent intent = new Intent(getApplication(), WalkHistoryActivity.class);
             startActivity(intent);
         } else if (id == R.id.setting) {
