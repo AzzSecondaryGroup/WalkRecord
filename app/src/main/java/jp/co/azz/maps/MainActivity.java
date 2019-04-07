@@ -21,7 +21,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -100,7 +99,7 @@ private static final String TAG = "MainActivity";
     private int speed = 4 ;//時速(km/hr)
 
     // Map初期表示位置をローカルファイルに保持しておくために使用
-    SharedPreferences posData;
+    SharedPreferences initPosData;
 
     ///////////// ダミーモード設定 /////////////
     SharedPreferences saveData;
@@ -190,7 +189,7 @@ private static final String TAG = "MainActivity";
 
         this.viewSetting();
 
-        posData = getSharedPreferences("PositionData", Context.MODE_PRIVATE);
+        initPosData = getSharedPreferences("PositionData", Context.MODE_PRIVATE);
     }
 
     /**
@@ -273,21 +272,24 @@ private static final String TAG = "MainActivity";
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        if (isFirstMapDisp) {
+            // Map初期表示用の位置座標のインスタンスを作成(緯度、経度)
+            float latitude = initPosData.getFloat("latitude", 0.0f);
+            float longitude = initPosData.getFloat("longitude", 0.0f);
+            LatLng initLatLng;
+            if (latitude == 0.0f || longitude == 0.0f) {
+                // 取得できないときはダミー（高田馬場を表示）
+                initLatLng = new LatLng(35.712206, 139.706787);
+            } else {
+                initLatLng = new LatLng(latitude, longitude);
+            }
+            CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(initLatLng, 16);
+            mMap.moveCamera(cUpdate);
+        }
+
         PolylineOptions option = PolyLineOptionsFactory.create();
         mMap.addPolyline(option);
-
-        // Map初期表示用の位置座標のインスタンスを作成(緯度、経度)
-        float latitude = posData.getFloat("latitude", 0.0f);
-        float longitude = posData.getFloat("longitude", 0.0f);
-        LatLng initLatLng;
-        if (latitude == 0.0f || longitude == 0.0f) {
-            // 取得できないときはダミー（高田馬場を表示）
-            initLatLng = new LatLng(35.712206, 139.706787);
-        } else {
-            initLatLng = new LatLng(latitude, longitude);
-        }
-        CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(initLatLng, 16);
-        mMap.moveCamera(cUpdate);
 
         // 位置情報権限周り判定処理
         locationAuthorityJudge();
@@ -441,7 +443,7 @@ private static final String TAG = "MainActivity";
             Log.d(TAG, "■最初の地図の位置更新");
 
             // 次の起動時に位置情報がすぐにとれない場合に初期表示する位置として保存する
-            SharedPreferences.Editor editor = posData.edit();
+            SharedPreferences.Editor editor = initPosData.edit();
             editor.putFloat("latitude", (float)location.getLatitude());
             editor.putFloat("longitude", (float)location.getLongitude());
             editor.apply();
