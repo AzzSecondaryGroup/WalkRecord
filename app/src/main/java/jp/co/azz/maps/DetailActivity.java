@@ -39,19 +39,19 @@ public class DetailActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         walkRecordDao = new WalkRecordDao(getApplicationContext());
 
-        setContentView(R.layout.history_detail);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        setContentView(R.layout.nav_header_detail);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_detail);
+        setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout_detail);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view_detail);
         navigationView.setNavigationItemSelectedListener(this);
 
         // MapFragmentの生成
@@ -68,16 +68,6 @@ public class DetailActivity extends AppCompatActivity
     }
 
     @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -91,29 +81,20 @@ public class DetailActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-
         int id = item.getItemId();
-        Intent intent = null;
-
-        switch (id) {
-            case R.id.walk_history:
-                intent = new Intent(getApplication(), WalkHistoryActivity.class);
-                break;
-            case R.id.setting:
-                intent = new Intent(getApplication(), SettingActivity.class);
-                break;
-            case R.id.main:
-                intent = new Intent(getApplication(), MainActivity.class);
-                break;
-            default:
-                Log.d(DetailActivity.class.getName(), "未設定の遷移先が指定されました");
-                return false;
+        if (id == R.id.main) {
+            Intent intent = new Intent(getApplication(), MainActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.walk_history) {
+            Intent intent = new Intent(getApplication(), WalkHistoryActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.setting) {
+            Intent intent = new Intent(getApplication(), SettingActivity.class);
+            startActivity(intent);
         }
 
-        startActivity(intent);
-
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout_detail);
+        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
@@ -144,26 +125,20 @@ public class DetailActivity extends AppCompatActivity
         long historyId = (long)extras.get("historyId");
         HistoryDto history = walkRecordDao.selectByIdFromHistory(historyId);
 
-        // 詳細画面はメイン画面を使いまわしている。
-        // ただし、ボタンは不要なので消す
-        ToggleButton toggleButton = findViewById(R.id.toggleButton);
-
-        TextView distance = this.findViewById(R.id.main_distance);
+        TextView distance = this.findViewById(R.id.detail_distance);
         distance.setText(history.getKilometer());
         
-        TextView step_cnt = this.findViewById(R.id.main_step);
+        TextView step_cnt = this.findViewById(R.id.detail_step);
         step_cnt.setText(String.valueOf(history.getNumberOfSteps()));
 
-        TextView calorie = this.findViewById(R.id.main_calorie);
+        TextView calorie = this.findViewById(R.id.detail_calorie);
         calorie.setText(String.valueOf(history.getCalorie()));
 
-        TextView start = this.findViewById(R.id.main_start_time);
+        TextView start = this.findViewById(R.id.detail_start_time);
         start.setText(history.getStartDate());
 
-        TextView end = this.findViewById(R.id.main_end_time);
+        TextView end = this.findViewById(R.id.detail_end_time);
         end.setText(history.getEndDate());
 
-        // メイン画面と詳細画面で画面共用なので、画面で描画不要な項目を消す
-        toggleButton.setVisibility(View.INVISIBLE);
     }
 }

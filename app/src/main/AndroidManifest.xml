@@ -56,6 +56,7 @@ The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
         <activity
             android:name=".DetailActivity"
             android:label="@string/view_detail"
+            android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait"></activity>
     </application>
 
