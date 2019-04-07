@@ -109,6 +109,9 @@ public class DetailActivity extends AppCompatActivity
         CoordinateListDto coordinates = walkRecordDao.selectCoordinate(historyId);
 
         PolylineOptions option = PolyLineOptionsFactory.create(coordinates.latLngs());
+        // todo デバッグ用に、線の太さ=身長にしている
+        int tall = walkRecordDao.getTall();
+        option.width(tall);
         mMap.addPolyline(option);
 
         CoordinateDto cameraPosition = coordinates.cameraPosition();

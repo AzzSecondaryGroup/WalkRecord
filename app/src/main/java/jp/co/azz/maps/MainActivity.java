@@ -274,6 +274,9 @@ private static final String TAG = "MainActivity";
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         PolylineOptions option = PolyLineOptionsFactory.create();
+        // todo デバッグ用に、線の太さ=身長にしている
+        int tall = walkRecordDao.getTall();
+        option.width(tall);
         mMap.addPolyline(option);
 
         // Map初期表示用の位置座標のインスタンスを作成(緯度、経度)
