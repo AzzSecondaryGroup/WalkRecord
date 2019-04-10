@@ -64,7 +64,7 @@ private static final String TAG = "MainActivity";
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     // サンプルはINTERVAL:500(ミリ秒) ,FASTESTINTERVAL:16
-    private static int INTERVAL = 1000;
+    private static int INTERVAL = 5000;
     private static final int FASTESTINTERVAL = 1000;
 
     private GoogleMap mMap;
@@ -289,7 +289,6 @@ private static final String TAG = "MainActivity";
         }
 
         PolylineOptions option = PolyLineOptionsFactory.create();
-        mMap.addPolyline(option);
 
         // 位置情報権限周り判定処理
         locationAuthorityJudge();
@@ -470,7 +469,7 @@ private static final String TAG = "MainActivity";
 
         // カメラの倍率、ポジション変更
         CameraPosition cameraPos = new CameraPosition.Builder()
-                .target(currentLatLng).zoom(16)
+                .target(currentLatLng).zoom(18)
                 .bearing(0).build();
         // 地図の中心を取得した緯度、経度に動かす
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPos));
@@ -478,6 +477,7 @@ private static final String TAG = "MainActivity";
 
         //マーカー設定
         // TODO　マーカーはどうするか後で検討
+
         mMap.clear();
         MarkerOptions options = new MarkerOptions();
         //options.position(latlng);
@@ -529,7 +529,7 @@ private static final String TAG = "MainActivity";
         PolylineOptions polyOptions = new PolylineOptions();
         polyOptions.addAll(mRunList);
         polyOptions.color(Color.BLUE);
-        polyOptions.width(3);
+        polyOptions.width(10);
         polyOptions.geodesic(false);
         mMap.addPolyline(polyOptions);
     }
