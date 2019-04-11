@@ -56,27 +56,27 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         navigationView.setNavigationItemSelectedListener(this);
 
         walkRecordDao = new WalkRecordDao(getApplicationContext());
-        final int interval = walkRecordDao.getInterval();
+//        final int interval = walkRecordDao.getInterval();
 
-        Spinner spinner = findViewById(R.id.spinner);
-
-        // ArrayAdapter
-        ArrayAdapter<String> adapter
-                = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, spinnerItems);
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        // spinner に adapter をセット
-        spinner.setAdapter(adapter);
-        // 地図表示間隔のDB保存値からスピナーの初期表示位置を取得
-        int initPosition = adapter.getPosition(String.valueOf(interval/1000));
-        // ポジション取得失敗(-1)の場合はひとまず5秒の位置を設定しておく
-        if (initPosition == -1) {
-            initPosition = 1;
-        }
-        // スピナーにセット
-        spinner.setSelection(initPosition,false);
+//        Spinner spinner = findViewById(R.id.spinner);
+//
+//        // ArrayAdapter
+//        ArrayAdapter<String> adapter
+//                = new ArrayAdapter<>(this,
+//                android.R.layout.simple_spinner_item, spinnerItems);
+//
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//
+//        // spinner に adapter をセット
+//        spinner.setAdapter(adapter);
+//        // 地図表示間隔のDB保存値からスピナーの初期表示位置を取得
+//        int initPosition = adapter.getPosition(String.valueOf(interval/1000));
+//        // ポジション取得失敗(-1)の場合はひとまず5秒の位置を設定しておく
+//        if (initPosition == -1) {
+//            initPosition = 1;
+//        }
+//        // スピナーにセット
+//        spinner.setSelection(initPosition,false);
 
         // 身長のDB保存値があればセット
         currentTall = walkRecordDao.getTall();
@@ -136,10 +136,10 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         switch (view.getId()) {
             case R.id.saveButton:
                 walkRecordDao = new WalkRecordDao(getApplicationContext());
-                Spinner selectInterval = this.findViewById(R.id.spinner);
-                String item = selectInterval.getSelectedItem().toString();
-                String interval = String.valueOf(Integer.valueOf(item) * 1000);
-                walkRecordDao.updateInterval(Integer.parseInt(interval));
+//                Spinner selectInterval = this.findViewById(R.id.spinner);
+//                String item = selectInterval.getSelectedItem().toString();
+//                String interval = String.valueOf(Integer.valueOf(item) * 1000);
+//                walkRecordDao.updateInterval(Integer.parseInt(interval));
 
                 String selectTall = ((TextView)this.findViewById(R.id.tall)).getText().toString();
                 // 入力された場合のみ更新
