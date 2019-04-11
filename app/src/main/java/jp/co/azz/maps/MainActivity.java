@@ -65,7 +65,7 @@ private static final String TAG = "MainActivity";
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     // サンプルはINTERVAL:500(ミリ秒) ,FASTESTINTERVAL:16
     private static int INTERVAL = 5000;
-    private static final int FASTESTINTERVAL = 1000;
+    private static final int FASTESTINTERVAL = 5000;
 
     private GoogleMap mMap;
 
@@ -697,6 +697,7 @@ private static final String TAG = "MainActivity";
                     }
                     Log.d(TAG, "■インターバル"+ interval);
                     LOCATION_REQUEST.setInterval(interval);
+                    LOCATION_REQUEST.setFastestInterval(interval);
                     mStart = true;
                     mFirst = true;
                     mStop = false;
