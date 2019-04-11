@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity
 private static final String TAG = "MainActivity";
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    // サンプルはINTERVAL:500(ミリ秒) ,FASTESTINTERVAL:16
+    // サンプルはINTERVAL:5000(ミリ秒) ,FASTESTINTERVAL:16
     private static int INTERVAL = 5000;
     private static final int FASTESTINTERVAL = 5000;
 
@@ -529,7 +529,7 @@ private static final String TAG = "MainActivity";
         PolylineOptions polyOptions = new PolylineOptions();
         polyOptions.addAll(mRunList);
         polyOptions.color(Color.BLUE);
-        polyOptions.width(10);
+        polyOptions.width(15);
         polyOptions.geodesic(false);
         mMap.addPolyline(polyOptions);
     }

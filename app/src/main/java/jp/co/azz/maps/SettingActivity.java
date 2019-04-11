@@ -91,6 +91,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             TextView weight = findViewById(R.id.weight);
             weight.setText(String.valueOf(walkRecordDao.getWeight()));
         }
+
         this.viewSetting();
 
         ///////////////////////// ダミーモード設定 ///////////////////////////////////////////
@@ -142,23 +143,48 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 //                walkRecordDao.updateInterval(Integer.parseInt(interval));
 
                 String selectTall = ((TextView)this.findViewById(R.id.tall)).getText().toString();
-                // 入力された場合のみ更新
-                if (!selectTall.isEmpty()) {
-                    if (currentTall > 0) {
-                        walkRecordDao.updateTall(Integer.parseInt(selectTall));
-                    } else {
-                        walkRecordDao.insertTall(Integer.parseInt(selectTall));
-                    }
-                }
                 String selectWeight = ((TextView)this.findViewById(R.id.weight)).getText().toString();
-                // 入力された場合のみ更新
-                if (!selectWeight.isEmpty()) {
-                    if (currentWeight > 0) {
-                        walkRecordDao.updateWeight(Integer.parseInt(selectWeight));
-                    } else {
-                        walkRecordDao.insertWeight(Integer.parseInt(selectWeight));
+
+                boolean isWellValue = true;
+                int inputTall = 0;
+                int inputWeight = 0;
+
+                if (!selectTall.isEmpty()) {
+                    inputTall = Integer.parseInt(selectTall);
+                    if (inputTall < 100 || 220 < inputTall) {
+                        isWellValue = false;
                     }
                 }
+                if (!selectWeight.isEmpty()) {
+                    inputWeight = Integer.parseInt(selectWeight);
+                    if (inputWeight < 15 || 220 < inputWeight) {
+                        isWellValue = false;
+                    }
+                }
+
+                if (isWellValue) {
+                    // 入力された場合のみ更新
+                    if (inputTall != 0) {
+                        if (currentTall > 0) {
+                            walkRecordDao.updateTall(inputTall);
+                        } else {
+                            walkRecordDao.insertTall(inputTall);
+                        }
+                    }
+
+                    // 入力された場合のみ更新
+                    if (inputWeight != 0) {
+                        if (currentWeight > 0) {
+                            walkRecordDao.updateWeight(inputWeight);
+                        } else {
+                            walkRecordDao.insertWeight(inputWeight);
+                        }
+                    }
+                    msg = "設定を更新しました";
+                } else {
+                    msg = "適切な値を設定してください";
+                }
+
 
                 /////////////////////////////////// ダミーモード設定 /////////////////////////////////
 
@@ -167,13 +193,13 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 editor.putBoolean("dummyModeKey", isDummyMode);
                 editor.apply();
                 ////////////////////////////////////////////////////////////////////////////////////
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+
+                // 保存後、設定画面を終了させる
+                if (isWellValue) {
+                    finish();
+                }
         }
-        msg = "設定を更新しました";
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-
-        // 保存後、設定画面を終了させる
-        finish();
-
     }
 
     /**
