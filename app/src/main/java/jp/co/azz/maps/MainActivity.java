@@ -284,7 +284,7 @@ private static final String TAG = "MainActivity";
             } else {
                 initLatLng = new LatLng(latitude, longitude);
             }
-            CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(initLatLng, 16);
+            CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(initLatLng, 18);
             mMap.moveCamera(cUpdate);
         }
 
@@ -437,7 +437,7 @@ private static final String TAG = "MainActivity";
         if (isFirstMapDisp) {
             // カメラの倍率、ポジション変更
             CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(
-            new LatLng(location.getLatitude(), location.getLongitude()), 16);
+            new LatLng(location.getLatitude(), location.getLongitude()), 18);
             mMap.moveCamera(cUpdate);
             Log.d(TAG, "■最初の地図の位置更新");
 
