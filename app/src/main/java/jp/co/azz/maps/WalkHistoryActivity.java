@@ -101,7 +101,7 @@ public class WalkHistoryActivity extends AppCompatActivity
                         // OK button pressed
                         // お散歩履歴削除
                         deleteRecord(historyId);
-                        showToast("お散歩履歴削除しました。");
+                        showToast("お散歩履歴を削除しました。");
                         //散歩履歴再取得
                         reacquire();
                     }

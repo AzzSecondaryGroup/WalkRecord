@@ -10,3 +10,6 @@
 .idea/*.xml
 .idea/caches
 /release
+app/release/app-release.apk
+app/release/
+.idea/dictionaries/

@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -27,6 +28,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -51,6 +53,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.co.azz.maps.Common.VersionCheck;
 import jp.co.azz.maps.databases.DatabaseContract;
 import jp.co.azz.maps.databases.DatabaseHelper;
 import jp.co.azz.maps.databases.HistoryDto;
@@ -140,23 +143,22 @@ private static final String TAG = "MainActivity";
         setContentView(R.layout.activity_main);
 
         // ****************** デバッグ用散歩履歴件数表示 ******************
-        walkRecordDao = new WalkRecordDao(getApplicationContext());
-
-        List<HistoryDto> historyList = walkRecordDao.selectHistory();
-        Log.d(TAG, "◆散歩履歴テーブルのダミーデータの件数：" + historyList.size() + "◆");
-        if (historyList.size() > 0) {
-            HistoryDto historyDto = historyList.get(historyList.size() - 1);
-            Log.d(TAG, "散歩履歴テーブルのダミーデータ（最新）：");
-            Log.d(TAG, "　id：" + historyDto.getId());
-            Log.d(TAG, "　開始日時：" + historyDto.getStartDate());
-            Log.d(TAG, "　終了日時：" + historyDto.getEndDate());
-            Log.d(TAG, "　距離：" + historyDto.getKilometer());
-            Log.d(TAG, "　歩数：" + historyDto.getNumberOfSteps());
-            Log.d(TAG, "　カロリー：" + historyDto.getCalorie());
-        }
+//        walkRecordDao = new WalkRecordDao(getApplicationContext());
+//
+//        List<HistoryDto> historyList = walkRecordDao.selectHistory();
+//        Log.d(TAG, "◆散歩履歴テーブルのダミーデータの件数：" + historyList.size() + "◆");
+//        if (historyList.size() > 0) {
+//            HistoryDto historyDto = historyList.get(historyList.size() - 1);
+//            Log.d(TAG, "散歩履歴テーブルのダミーデータ（最新）：");
+//            Log.d(TAG, "　id：" + historyDto.getId());
+//            Log.d(TAG, "　開始日時：" + historyDto.getStartDate());
+//            Log.d(TAG, "　終了日時：" + historyDto.getEndDate());
+//            Log.d(TAG, "　距離：" + historyDto.getKilometer());
+//            Log.d(TAG, "　歩数：" + historyDto.getNumberOfSteps());
+//            Log.d(TAG, "　カロリー：" + historyDto.getCalorie());
+//        }
 
         // ****************************************************************
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -190,6 +192,28 @@ private static final String TAG = "MainActivity";
         this.viewSetting();
 
         initPosData = getSharedPreferences("PositionData", Context.MODE_PRIVATE);
+
+        // ****************** バージョン確認 ******************
+        if (VersionCheck.isExistNewVersion(getApplicationContext())) {
+            new AlertDialog.Builder(this)
+                    .setTitle("新しいバージョンに更新可能です")
+                    .setPositiveButton("今すぐ更新", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // OK button pressed
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=jp.co.azz.maps")));
+                            dialog.dismiss();
+                        }
+                    })
+                    .setNegativeButton("後で更新", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
+        }
+        // ***************************************************
     }
 
     /**
