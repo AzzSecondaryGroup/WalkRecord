@@ -6,7 +6,7 @@ android {
         applicationId "jp.co.azz.maps"
         minSdkVersion 23
         targetSdkVersion 28
-        versionCode 17
+        versionCode 18
         versionName "1.1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

@@ -27,10 +27,11 @@ public class VersionCheck {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+        // バージョンが異なる場合は更新対象
         // 取得できていない情報があった場合は判断つかないのでダイアログ表示対象外
         return latestVersion != null
                 && localVersion != null
-                && latestVersion.equals(localVersion);
+                && !latestVersion.equals(localVersion);
     }
 
    private static String localVersionName(Context context) {
