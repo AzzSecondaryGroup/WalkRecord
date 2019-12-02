@@ -58,6 +58,8 @@ The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
             android:label="@string/view_detail"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait"></activity>
+
+        <uses-library android:name="org.apache.http.legacy"/>
     </application>
 
 </manifest>
