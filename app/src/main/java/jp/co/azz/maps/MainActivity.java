@@ -78,8 +78,8 @@ private static final String TAG = "MainActivity";
             .setFastestInterval(FASTESTINTERVAL)
             .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);   //位置情報取得要求の優先順位（PRIORITY_HIGH_ACCURACY：高い正確性）
 
-    // GPS,WiFi,電話基地局からの位置情報を取得するAPI
-    private FusedLocationProviderApi fusedLocationProviderApi = LocationServices.FusedLocationApi;
+//    // GPS,WiFi,電話基地局からの位置情報を取得するAPI
+//    private FusedLocationProviderApi fusedLocationProviderApi = LocationServices.FusedLocationApi;
     // 移動経路を描くための情報のリスト
     private List<LatLng> mRunList = new ArrayList<LatLng>();
     private double mMeter = 0.0;           // メートル
@@ -700,10 +700,6 @@ private static final String TAG = "MainActivity";
                 // ONになった場合
                 if (button.isChecked()) {
 
-
-                    Intent intent = new Intent(getApplication(), LocationManageService.class);
-                    startService(intent);
-
                     // START押下時にもアプリの位置情報アクセス権と端末の位置情報設定を確認する
                     locationAuthorityJudge();
 
@@ -714,8 +710,8 @@ private static final String TAG = "MainActivity";
                         return;
                     }
 
-                    // STOPで接続中断後の可能性もあるのでGoogleサービス接続などを行う
-                    locationReadyProcess();
+//                    // STOPで接続中断後の可能性もあるのでGoogleサービス接続などを行う
+//                    locationReadyProcess();
 
                     Log.d(TAG, "■経路取得開始");
                     int interval = walkRecordDao.getInterval();
@@ -734,6 +730,10 @@ private static final String TAG = "MainActivity";
                     // 散歩記録開始メッセージ表示
                     showToast("散歩の記録を開始しました。");
 
+                    // サービスの位置情報取得処理を呼び出し
+                    Intent intent = new Intent(getApplication(), LocationManageService.class);
+                    startService(intent);
+
                 } else {
 //                    if (googleApiClient.isConnected() ) {
 //                        stopLocationUpdates();
@@ -751,6 +751,8 @@ private static final String TAG = "MainActivity";
                     // 散歩記録終了メッセージ表示
                     showToast("散歩の記録を終了しました。");
 
+                    Intent intent = new Intent(getApplication(), LocationManageService.class);
+                    stopService(intent);
                 }
         }
     }
