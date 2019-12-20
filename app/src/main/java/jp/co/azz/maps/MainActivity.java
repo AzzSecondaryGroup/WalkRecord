@@ -1,9 +1,11 @@
 package jp.co.azz.maps;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -11,6 +13,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -54,11 +57,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jp.co.azz.maps.Common.VersionCheck;
+import jp.co.azz.maps.Service.LocationService;
 import jp.co.azz.maps.databases.DatabaseContract;
 import jp.co.azz.maps.databases.DatabaseHelper;
 import jp.co.azz.maps.databases.HistoryDto;
 import jp.co.azz.maps.databases.WalkRecordDao;
-import jp.co.azz.maps.Service.LocationManageService;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, View.OnClickListener {
@@ -80,6 +83,9 @@ private static final String TAG = "MainActivity";
 
 //    // GPS,WiFi,電話基地局からの位置情報を取得するAPI
 //    private FusedLocationProviderApi fusedLocationProviderApi = LocationServices.FusedLocationApi;
+
+    public LocationService locationService;
+
     // 移動経路を描くための情報のリスト
     private List<LatLng> mRunList = new ArrayList<LatLng>();
     private double mMeter = 0.0;           // メートル
@@ -170,8 +176,15 @@ private static final String TAG = "MainActivity";
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // 画面をスリープにしない
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        // 位置情報取得サービスの呼び出し
+        final Intent serviceStart = new Intent(this.getApplication(), LocationService.class);
+        this.getApplication().startService(serviceStart);
+        // ActivityにServcie紐づけて管理できるようにする
+        this.getApplication().bindService(serviceStart, serviceConnection, Context.BIND_AUTO_CREATE);
+
+//        // 画面をスリープにしない
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
 
 //        // Google Playサービスへの入り口
 //        googleApiClient = new GoogleApiClient.Builder(this)
@@ -713,14 +726,14 @@ private static final String TAG = "MainActivity";
 //                    // STOPで接続中断後の可能性もあるのでGoogleサービス接続などを行う
 //                    locationReadyProcess();
 
-                    Log.d(TAG, "■経路取得開始");
+//                    Log.d(TAG, "■経路取得開始");
                     int interval = walkRecordDao.getInterval();
                     if (interval == 0) {
                         interval = DatabaseContract.Setting.DEFAULT_INTERVAL;
                     }
-                    Log.d(TAG, "■インターバル"+ interval);
-                    LOCATION_REQUEST.setInterval(interval);
-                    LOCATION_REQUEST.setFastestInterval(interval);
+//                    Log.d(TAG, "■インターバル"+ interval);
+//                    LOCATION_REQUEST.setInterval(interval);
+//                    LOCATION_REQUEST.setFastestInterval(interval);
                     mStart = true;
                     mFirst = true;
                     mStop = false;
@@ -731,8 +744,10 @@ private static final String TAG = "MainActivity";
                     showToast("散歩の記録を開始しました。");
 
                     // サービスの位置情報取得処理を呼び出し
-                    Intent intent = new Intent(getApplication(), LocationManageService.class);
-                    startService(intent);
+                    // 一旦onCreateから実行する
+//                    final Intent intent = new Intent(this.getApplication(), LocationManageService.class);
+//                    this.getApplication().startService(intent);
+//                    startForegroundService(intent);
 
                 } else {
 //                    if (googleApiClient.isConnected() ) {
@@ -751,8 +766,8 @@ private static final String TAG = "MainActivity";
                     // 散歩記録終了メッセージ表示
                     showToast("散歩の記録を終了しました。");
 
-                    Intent intent = new Intent(getApplication(), LocationManageService.class);
-                    stopService(intent);
+//                    Intent intent = new Intent(getApplication(), LocationManageService.class);
+//                    stopService(intent);
                 }
         }
     }
@@ -891,4 +906,33 @@ private static final String TAG = "MainActivity";
         TextView main_calorie = (TextView) findViewById(R.id.main_calorie);
         main_calorie.setText(String.format("0cal"));
     }
+
+    /**
+     * Serviceオブジェクトへの参照を取得するために仲介するクラス
+     */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        public void onServiceConnected(ComponentName className, IBinder service) {
+
+            Log.d(TAG, "!!!!!!!!!!serviceConnection onServiceConnected");
+            String name = className.getClassName();
+
+            if (name.endsWith("LocationService")) {
+                locationService = ((LocationService.LocationServiceBinder) service).getService();
+
+                locationService.startUpdatingLocation();
+            }
+        }
+
+        /**
+         * LocationServiceが何らかの理由で消滅した時に呼ばれる
+         * @param className
+         */
+        public void onServiceDisconnected(ComponentName className) {
+            Log.d(TAG, "!!!!!!!!!!serviceConnection onServiceDisconnected");
+            if (className.getClassName().equals("LocationService")) {
+                locationService = null;
+            }
+        }
+    };
 }
