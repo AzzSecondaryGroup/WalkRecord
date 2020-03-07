@@ -25,6 +25,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -54,15 +55,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jp.co.azz.maps.Common.VersionCheck;
+import jp.co.azz.maps.LocationService;
+import jp.co.azz.maps.databases.CoordinateDto;
+import jp.co.azz.maps.databases.CoordinateListDto;
 import jp.co.azz.maps.databases.DatabaseContract;
 import jp.co.azz.maps.databases.DatabaseHelper;
 import jp.co.azz.maps.databases.HistoryDto;
 import jp.co.azz.maps.databases.WalkRecordDao;
 
 
+//public class MainActivity extends AppCompatActivity
+//        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
+//        ConnectionCallbacks, OnConnectionFailedListener, LocationListener, View.OnClickListener {
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
-        ConnectionCallbacks, OnConnectionFailedListener, LocationListener, View.OnClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, View.OnClickListener {
 private static final String TAG = "MainActivity";
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
@@ -72,22 +78,22 @@ private static final String TAG = "MainActivity";
 
     private GoogleMap mMap;
 
-    private GoogleApiClient googleApiClient;
-    // 位置情報の取得間隔などの設定
-    private static final LocationRequest LOCATION_REQUEST = LocationRequest.create()
-            .setInterval(INTERVAL)              // 位置情報の更新間隔をミリ秒で設定
-            .setFastestInterval(FASTESTINTERVAL)
-            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);   //位置情報取得要求の優先順位（PRIORITY_HIGH_ACCURACY：高い正確性）
+//    private GoogleApiClient googleApiClient;
+//    // 位置情報の取得間隔などの設定
+//    private static final LocationRequest LOCATION_REQUEST = LocationRequest.create()
+//            .setInterval(INTERVAL)              // 位置情報の更新間隔をミリ秒で設定
+//            .setFastestInterval(FASTESTINTERVAL)
+//            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);   //位置情報取得要求の優先順位（PRIORITY_HIGH_ACCURACY：高い正確性）
 
     // GPS,WiFi,電話基地局からの位置情報を取得するAPI
-    private FusedLocationProviderApi fusedLocationProviderApi = LocationServices.FusedLocationApi;
+//    private FusedLocationProviderApi fusedLocationProviderApi = LocationServices.FusedLocationApi;
     // 移動経路を描くための情報のリスト
     private List<LatLng> mRunList = new ArrayList<LatLng>();
     private double mMeter = 0.0;           // メートル
     private DatabaseHelper dbHelper;
-    private boolean mStart = false;
+//    private boolean mStart = false;
     private boolean mFirst = false;
-    private boolean mStop = true;   // 開始時は停止
+//    private boolean mStop = true;   // 開始時は停止
     private WalkRecordDao walkRecordDao;
     private int walkHistoryNum = 0;
     private boolean isFirstMapDisp = true;  // MAP最初の表示かどうか
@@ -100,6 +106,9 @@ private static final String TAG = "MainActivity";
     private int burnedCalories;
     private double weight;
     private int speed = 4 ;//時速(km/hr)
+
+    // サービス起動状態（getRunningServicesがAndroid8から廃止されたので自前で管理）
+    private boolean isServiceStarted = false;
 
     // Map初期表示位置をローカルファイルに保持しておくために使用
     SharedPreferences initPosData;
@@ -171,15 +180,15 @@ private static final String TAG = "MainActivity";
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // 画面をスリープにしない
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+//        // 画面をスリープにしない
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        // Google Playサービスへの入り口
-        googleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+//        // Google Playサービスへの入り口
+//        googleApiClient = new GoogleApiClient.Builder(this)
+//                .addConnectionCallbacks(this)
+//                .addOnConnectionFailedListener(this)
+//                .addApi(LocationServices.API)
+//                .build();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapFragment);
@@ -242,11 +251,11 @@ private static final String TAG = "MainActivity";
             weight = DatabaseContract.Setting.DEFAULT_WEIGHT;
         }
 
-        // Google Playサービスに接続する
-        googleApiClient.connect();
-
-        // バックグラウンドから戻った時にGoogleサービスに接続可能な場合は接続する
-        locationReadyProcess();
+//        // Google Playサービスに接続する
+//        googleApiClient.connect();
+//
+//        // バックグラウンドから戻った時にGoogleサービスに接続可能な場合は接続する
+//        locationReadyProcess();
 
     }
 
@@ -363,13 +372,14 @@ private static final String TAG = "MainActivity";
             // このアプリに位置情報へのアクセス権がある場合のみ処理を行う
             isLocationAuthorityReady = isTerminalLocationEnabled();
 
-            // アクセス権限、設定ともに問題なければGoogleAPI接続
-            locationReadyProcess();
+//            // アクセス権限、設定ともに問題なければGoogleAPI接続
+//            locationReadyProcess();
         }
     }
 
     /**
      * お散歩アプリに位置情報へのアクセスを許可するかどうか確認するダイアログ
+     * （OS依存のダイアログ表示）
      */
     private void requestAccessFineLocation() {
         ActivityCompat.requestPermissions(this,
@@ -379,7 +389,8 @@ private static final String TAG = "MainActivity";
     }
 
     /**
-     * 当アプリのアクセス許可確認ダイアログの承認結果を受け取る
+     * お散歩アプリへのアクセス許可確認ダイアログの承認結果を受け取る
+     * （OS依存のダイアログ表示に対する操作結果）
      * @param requestCode
      * @param permissions
      * @param grantResults
@@ -407,6 +418,68 @@ private static final String TAG = "MainActivity";
         }
     }
 
+
+    /**
+     * 端末の位置情報機能の状態が有効か無効かを判断する。
+     * 位置情報がOFFの場合、ONにするよう促す、ダイアログを出す。
+     * 位置情報モードが"GPSのみ利用" の場合ダイアログを出す。
+     */
+    private boolean isTerminalLocationEnabled() {
+
+        // 位置情報有効か
+        boolean isLocationInvalid = false;
+        // GPSのみになっていないか
+        boolean isGpsOnly = false;
+
+        try {
+            // 位置情報設定取得
+            int locationMode = Settings.Secure.getInt(getApplicationContext().getContentResolver(), Settings.Secure.LOCATION_MODE);
+            if (locationMode == Settings.Secure.LOCATION_MODE_OFF){
+                isLocationInvalid = true;
+            } else if (locationMode == Settings.Secure.LOCATION_MODE_SENSORS_ONLY) {
+                isGpsOnly = true;
+            }
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+            showToast("位置情報の設定状況確認に失敗しました");
+        }
+
+        if (isLocationInvalid) {
+            //位置情報が無効だった場合
+            //ダイアログで位置情報をONにするように促すメッセージを出す。
+            new AlertDialog.Builder(this)
+                    .setTitle("端末の位置情報設定がOFFになっています")
+                    .setMessage("このアプリを使用するには、端末の位置情報設定をONにして位置情報モードを「GPSのみ」以外にしてください。")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // OK button pressed
+                            //何もしない
+                        }
+                    })
+                    .show();
+            return false;
+        } else if (isGpsOnly) {
+            // TODO　API変わったのでGPSのみで使えるかどうか念のため試す
+//            //GPSの位置情報モードが"GPSのみ利用" の場合
+//            //ダイアログでGPSの位置情報モードが"GPSのみ利用" 以外にするようメッセージを出す。
+//            new AlertDialog.Builder(this)
+//                    .setTitle("端末の位置情報モードが 「GPSのみ」になっています")
+//                    .setMessage("このアプリを使用するには、端末の位置情報モードを「GPSのみ」以外にしてください。")
+//                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            // OK button pressed
+//                            //何もしない
+//                        }
+//                    })
+//                    .show();
+//                    return false;
+        }
+
+        return true;
+    }
+
     /**
      * 現在地表示ボタンを設定する
      */
@@ -424,125 +497,125 @@ private static final String TAG = "MainActivity";
         }
     }
 
-    /**
-     * Google Playサービスに接続したときの処理
-     * @param bundle
-     */
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.d(TAG, "■Google Playサービスに接続");
-        // 位置情報取得の権限を保持しているかチェック
-        // 権限がない場合は後続処理を行わない
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        // 位置情報が変わった時に通知を受け取るためのリクエスト
-        // onLocationChanged が呼び出されるようになる
-        fusedLocationProviderApi.requestLocationUpdates(googleApiClient, LOCATION_REQUEST, this);
+//    /**
+//     * Google Playサービスに接続したときの処理
+//     * @param bundle
+//     */
+//    @Override
+//    public void onConnected(@Nullable Bundle bundle) {
+//        Log.d(TAG, "■Google Playサービスに接続");
+//        // 位置情報取得の権限を保持しているかチェック
+//        // 権限がない場合は後続処理を行わない
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            return;
+//        }
+//        // 位置情報が変わった時に通知を受け取るためのリクエスト
+//        // onLocationChanged が呼び出されるようになる
+//        fusedLocationProviderApi.requestLocationUpdates(googleApiClient, LOCATION_REQUEST, this);
+//
+//    }
 
-    }
-
-    /**
-     * 位置情報が更新された場合の処理
-     * 地図の移動、住所の取得、移動線の描画、移動距離の累計を行う
-     *
-     * @param location
-     */
-    @Override
-    public void onLocationChanged(Location location) {
-
-        Log.d(TAG, "■位置情報が更新されたとき");
-        Log.d(TAG, "■緯度、経路："+location.getLatitude() + ", " + location.getLongitude());
-
-        // 位置情報取得
-        LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-        // showToast("currentLatLngの確認"+currentLatLng);
-        // まだ一度もMap表示していない場合のみ最初のMap表示を行う
-        if (isFirstMapDisp) {
-            // カメラの倍率、ポジション変更
-            CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(
-            new LatLng(location.getLatitude(), location.getLongitude()), 18);
-            mMap.moveCamera(cUpdate);
-            Log.d(TAG, "■最初の地図の位置更新");
-
-            // 次の起動時に位置情報がすぐにとれない場合に初期表示する位置として保存する
-            SharedPreferences.Editor editor = initPosData.edit();
-            editor.putFloat("latitude", (float)location.getLatitude());
-            editor.putFloat("longitude", (float)location.getLongitude());
-            editor.apply();
-
-            isFirstMapDisp = false;
-        }
-
-        // stop後は動かさない
-        if (mStop) {
-            return;
-        }
-
-        // ********** テスト用ダミーデータの作成 *************
-        if(!mRunList.isEmpty() && isDummyMode) {
-            LatLng dummy = mRunList.get(mRunList.size() - 1);
-            // 屋内のテスト用に位置を変える
-            dummy = new LatLng(dummy.latitude + 0.02, dummy.longitude + 0.02);
-
-            currentLatLng = dummy;
-        }
-
-        // ***************************************************
-
-
-        // カメラの倍率、ポジション変更
-        CameraPosition cameraPos = new CameraPosition.Builder()
-                .target(currentLatLng).zoom(18)
-                .bearing(0).build();
-        // 地図の中心を取得した緯度、経度に動かす
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPos));
-        Log.d(TAG, "■地図の位置更新");
-
-        //マーカー設定
-        // TODO　マーカーはどうするか後で検討
-
-        mMap.clear();
-        MarkerOptions options = new MarkerOptions();
-        //options.position(latlng);
-        options.position(currentLatLng);
-//        // ランチャーアイコン
-        // ここでエラー出てるみたいなので一旦コメントアウト
-//        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher);
-//        options.icon(icon);
-//        Log.d(TAG, "■アイコン作成");
-        // 現在地にマーカーを追加
-        mMap.addMarker(options);
-        Log.d(TAG, "■マーカーを追加");
-        if (mStart) {
-            //表示されている計測データを初期化
-            creaDate();
-
-            // 初回スタート時
-            if (mFirst) {
-                Log.d(TAG, "■スタート後初回の位置情報インサート");
-                // 散歩履歴をインサート
-                walkHistoryNum = (int) walkStart(currentLatLng);
-                walkRecordDao.insertCoordinate(walkHistoryNum,currentLatLng.latitude,currentLatLng.longitude);
-                Log.d(TAG, "■散歩履歴インサート（レコードNo）：" + walkHistoryNum);
-                mFirst = !mFirst;
-            } else {
-                // 2回目以降の位置取得の場合
-                // 走行距離を累積
-                sumDistance();
-
-                // 歩数計算
-                stepCalc();
-                // 消費カロリー計算
-                calorieCalc();
-
-                //座標更新、履歴テーブル更新
-                updateWalkRecord(currentLatLng);
-            }
-            // 移動線を描画
-            drawTrace(currentLatLng);
-        }
-    }
+//    /**
+//     * 位置情報が更新された場合の処理
+//     * 地図の移動、住所の取得、移動線の描画、移動距離の累計を行う
+//     *
+//     * @param location
+//     */
+//    @Override
+//    public void onLocationChanged(Location location) {
+//
+//        Log.d(TAG, "■位置情報が更新されたとき");
+//        Log.d(TAG, "■緯度、経路："+location.getLatitude() + ", " + location.getLongitude());
+//
+//        // 位置情報取得
+//        LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+//        // showToast("currentLatLngの確認"+currentLatLng);
+//        // まだ一度もMap表示していない場合のみ最初のMap表示を行う
+//        if (isFirstMapDisp) {
+//            // カメラの倍率、ポジション変更
+//            CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(
+//            new LatLng(location.getLatitude(), location.getLongitude()), 18);
+//            mMap.moveCamera(cUpdate);
+//            Log.d(TAG, "■最初の地図の位置更新");
+//
+//            // 次の起動時に位置情報がすぐにとれない場合に初期表示する位置として保存する
+//            SharedPreferences.Editor editor = initPosData.edit();
+//            editor.putFloat("latitude", (float)location.getLatitude());
+//            editor.putFloat("longitude", (float)location.getLongitude());
+//            editor.apply();
+//
+//            isFirstMapDisp = false;
+//        }
+//
+//        // stop後は動かさない
+//        if (mStop) {
+//            return;
+//        }
+//
+//        // ********** テスト用ダミーデータの作成 *************
+//        if(!mRunList.isEmpty() && isDummyMode) {
+//            LatLng dummy = mRunList.get(mRunList.size() - 1);
+//            // 屋内のテスト用に位置を変える
+//            dummy = new LatLng(dummy.latitude + 0.02, dummy.longitude + 0.02);
+//
+//            currentLatLng = dummy;
+//        }
+//
+//        // ***************************************************
+//
+//
+//        // カメラの倍率、ポジション変更
+//        CameraPosition cameraPos = new CameraPosition.Builder()
+//                .target(currentLatLng).zoom(18)
+//                .bearing(0).build();
+//        // 地図の中心を取得した緯度、経度に動かす
+//        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPos));
+//        Log.d(TAG, "■地図の位置更新");
+//
+//        //マーカー設定
+//        // TODO　マーカーはどうするか後で検討
+//
+//        mMap.clear();
+//        MarkerOptions options = new MarkerOptions();
+//        //options.position(latlng);
+//        options.position(currentLatLng);
+////        // ランチャーアイコン
+//        // ここでエラー出てるみたいなので一旦コメントアウト
+////        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher);
+////        options.icon(icon);
+////        Log.d(TAG, "■アイコン作成");
+//        // 現在地にマーカーを追加
+//        mMap.addMarker(options);
+//        Log.d(TAG, "■マーカーを追加");
+//        if (mStart) {
+//            //表示されている計測データを初期化
+//            creaDate();
+//
+//            // 初回スタート時
+//            if (mFirst) {
+//                Log.d(TAG, "■スタート後初回の位置情報インサート");
+//                // 散歩履歴をインサート
+//                walkHistoryNum = (int) walkStart(currentLatLng);
+//                walkRecordDao.insertCoordinate(walkHistoryNum,currentLatLng.latitude,currentLatLng.longitude);
+//                Log.d(TAG, "■散歩履歴インサート（レコードNo）：" + walkHistoryNum);
+//                mFirst = !mFirst;
+//            } else {
+//                // 2回目以降の位置取得の場合
+//                // 走行距離を累積
+//                sumDistance();
+//
+//                // 歩数計算
+//                stepCalc();
+//                // 消費カロリー計算
+//                calorieCalc();
+//
+//                //座標更新、履歴テーブル更新
+//                updateWalkRecord(currentLatLng);
+//            }
+//            // 移動線を描画
+//            drawTrace(currentLatLng);
+//        }
+//    }
 
     /**
      * 線を引く
@@ -616,11 +689,11 @@ private static final String TAG = "MainActivity";
     protected void onPause() {
         super.onPause();
 
-        if (googleApiClient.isConnected() ) {
-            stopLocationUpdates();
-        }
-        // Google Playサービスの接続を止める
-        googleApiClient.disconnect();
+//        if (googleApiClient.isConnected() ) {
+//            stopLocationUpdates();
+//        }
+//        // Google Playサービスの接続を止める
+//        googleApiClient.disconnect();
 
     }
 
@@ -632,20 +705,27 @@ private static final String TAG = "MainActivity";
         super.onStop();
     }
 
-    /**
-     * 位置情報のリクエストを解除する
-     */
-    protected void stopLocationUpdates() {
-        fusedLocationProviderApi.removeLocationUpdates(googleApiClient, this);
-    }
     @Override
-    public void onConnectionSuspended(int cause) {
-        // Do nothing
+    public void onDestroy() {
+        super.onDestroy();
+
+        stopLocationService();
     }
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        // Do nothing
-    }
+
+//    /**
+//     * 位置情報のリクエストを解除する
+//     */
+//    protected void stopLocationUpdates() {
+//        fusedLocationProviderApi.removeLocationUpdates(googleApiClient, this);
+//    }
+//    @Override
+//    public void onConnectionSuspended(int cause) {
+//        // Do nothing
+//    }
+//    @Override
+//    public void onConnectionFailed(ConnectionResult result) {
+//        // Do nothing
+//    }
 
     /**
      * 記録を開始する
@@ -711,35 +791,29 @@ private static final String TAG = "MainActivity";
                         return;
                     }
 
-                    // STOPで接続中断後の可能性もあるのでGoogleサービス接続などを行う
-                    locationReadyProcess();
+//                    // STOPで接続中断後の可能性もあるのでGoogleサービス接続などを行う
+//                    locationReadyProcess();
 
-                    Log.d(TAG, "■経路取得開始");
-                    int interval = walkRecordDao.getInterval();
-                    if (interval == 0) {
-                        interval = DatabaseContract.Setting.DEFAULT_INTERVAL;
-                    }
-                    Log.d(TAG, "■インターバル"+ interval);
-                    LOCATION_REQUEST.setInterval(interval);
-                    LOCATION_REQUEST.setFastestInterval(interval);
-                    mStart = true;
+//                    Log.d(TAG, "■経路取得開始");
+//                    int interval = walkRecordDao.getInterval();
+//                    if (interval == 0) {
+//                        interval = DatabaseContract.Setting.DEFAULT_INTERVAL;
+//                    }
+
                     mFirst = true;
-                    mStop = false;
+
                     mMeter = 0.0;
                     mRunList.clear();
+
+                    // サービス開始
+                    startLocationService();
 
                     // 散歩記録開始メッセージ表示
                     showToast("散歩の記録を開始しました。");
 
                 } else {
-                    if (googleApiClient.isConnected() ) {
-                        stopLocationUpdates();
-                    }
-                    // Google Playサービスの接続を止める
-                    googleApiClient.disconnect();
-
-                    mStop = true;
-                    mStart = false;
+                    // サービス終了
+                    stopLocationService();
 
                     TextView endTime = this.findViewById(R.id.main_end_time);
                     endTime.setVisibility(View.VISIBLE);
@@ -749,6 +823,38 @@ private static final String TAG = "MainActivity";
                     showToast("散歩の記録を終了しました。");
 
                 }
+        }
+    }
+
+    /**
+     * 位置情報取得サービス開始
+     */
+    private void startLocationService() {
+        if (!isServiceStarted) {
+            isServiceStarted = true;
+
+            Intent intent = new Intent(getApplication(), LocationService.class);
+            startForegroundService(intent);
+
+            // Serviceから更新結果を受け取る場合に行う処理（途中）
+//            upReceiver = new UpdateReceiver();
+//            intentFilter = new IntentFilter();
+//            intentFilter.addAction("UPDATE_ACTION");
+//            registerReceiver(upReceiver, intentFilter);
+//
+//            upReceiver.registerHandler(updateHandler);
+        }
+    }
+
+    /**
+     * 位置情報取得サービス終了
+     */
+    private void stopLocationService() {
+        if (isServiceStarted) {
+            isServiceStarted = false;
+
+            Intent intent = new Intent(getApplication(), LocationService.class);
+            stopService(intent);
         }
     }
 
@@ -767,112 +873,62 @@ private static final String TAG = "MainActivity";
         // トグルボタンにリスナーを追加
         toggleButton.setOnClickListener(this);
 
-    }
+        Button updateButton = findViewById(R.id.button_update);
+        updateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-/**
- * 端末の位置情報機能の状態が有効か無効かを判断する。
- * 位置情報がOFFの場合、ONにするよう促す、ダイアログを出す。
- * 位置情報モードが"GPSのみ利用" の場合ダイアログを出す。
- */
-    private boolean isTerminalLocationEnabled() {
+                // ヒストリーIDをいったんダミーで0指定
+                int historyId = 0;
 
-        // 位置情報有効か
-        boolean isLocationInvalid = false;
-        // GPSのみになっていないか
-        boolean isGpsOnly = false;
+                CoordinateListDto coordinates = walkRecordDao.selectCoordinate(historyId);
 
-        // APIレベル19以上の場合
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
-            try {
-                // 位置情報設定取得
-                int locationMode = Settings.Secure.getInt(getApplicationContext().getContentResolver(), Settings.Secure.LOCATION_MODE);
-                if (locationMode == Settings.Secure.LOCATION_MODE_OFF){
-                    isLocationInvalid = true;
-                } else if (locationMode == Settings.Secure.LOCATION_MODE_SENSORS_ONLY) {
-                    isGpsOnly = true;
-                }
-            } catch (Settings.SettingNotFoundException e) {
-                e.printStackTrace();
-                showToast("位置情報の設定状況確認に失敗しました");
+                PolylineOptions option = PolyLineOptionsFactory.create(coordinates.latLngs());
+                option.width(15);
+                mMap.addPolyline(option);
+
+                CoordinateDto cameraPosition = coordinates.cameraPosition();
+                CameraUpdate cUpdate = CameraUpdateFactory.newLatLngZoom(
+                        cameraPosition.latLng(), 16);
+                mMap.moveCamera(cUpdate);
             }
-        } else {
-            String gpsStatus = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-            if (!gpsStatus.contains("gps") && !gpsStatus.contains("network")) {
-                isLocationInvalid = true;
-            } else if (gpsStatus.contains("gps") && !gpsStatus.contains("network")) {
-                isGpsOnly = true;
-            }
-        }
-
-
-        if (isLocationInvalid) {
-            //位置情報が無効だった場合
-            //ダイアログで位置情報をONにするように促すメッセージを出す。
-            new AlertDialog.Builder(this)
-                    .setTitle("端末の位置情報設定がOFFになっています")
-                    .setMessage("このアプリを使用するには、端末の位置情報設定をONにして位置情報モードを「GPSのみ」以外にしてください。")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // OK button pressed
-                            //何もしない
-                        }
-                    })
-                    .show();
-                    return false;
-        } else if (isGpsOnly) {
-            //GPSの位置情報モードが"GPSのみ利用" の場合
-            //ダイアログでGPSの位置情報モードが"GPSのみ利用" 以外にするようメッセージを出す。
-            new AlertDialog.Builder(this)
-                    .setTitle("端末の位置情報モードが 「GPSのみ」になっています")
-                    .setMessage("このアプリを使用するには、端末の位置情報モードを「GPSのみ」以外にしてください。")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // OK button pressed
-                            //何もしない
-                        }
-                    })
-                    .show();
-                    return false;
-        }
-
-        return true;
+        });
     }
 
-    /**
-     * 位置情報の取得準備が整っているときの最初の処理
-     */
-    private void locationReadyProcess() {
-        // TODO 電力消費抑えることを考える場合はもう少し考える
-        // 現状、端末の位置情報設定変更は検知できないので初回マップ表示前に一度接続しておく
-        if (isFirstMapDisp) {
-            // Google Playサービスに接続する
-            googleApiConnect();
-        }
 
-        // 権限、位置情報設定ともに問題ない場合
-        if (isLocationAuthorityReady) {
+//    /**
+//     * 位置情報の取得準備が整っているときの最初の処理
+//     */
+//    private void locationReadyProcess() {
+//        // TODO 電力消費抑えることを考える場合はもう少し考える
+//        // 現状、端末の位置情報設定変更は検知できないので初回マップ表示前に一度接続しておく
+//        if (isFirstMapDisp) {
+//            // Google Playサービスに接続する
+//            googleApiConnect();
+//        }
+//
+//        // 権限、位置情報設定ともに問題ない場合
+//        if (isLocationAuthorityReady) {
+//
+//            // Google Playサービスに接続する
+//            googleApiConnect();
+//        }
+//    }
 
-            // Google Playサービスに接続する
-            googleApiConnect();
-        }
-    }
-
-    /**
-     * googleApiClientに接続する
-     */
-    private void googleApiConnect() {
-
-        if (!googleApiClient.isConnected() ) {
-            googleApiClient.connect();
-        }
-    }
+//    /**
+//     * googleApiClientに接続する
+//     */
+//    private void googleApiConnect() {
+//
+//        if (!googleApiClient.isConnected() ) {
+//            googleApiClient.connect();
+//        }
+//    }
 
     /**
      * メイン画面の計測値の初期化
      */
-    private void creaDate(){
+    private void creaDate() {
 
         TextView main_end_time = this.findViewById(R.id.main_end_time);
         main_end_time.setVisibility(View.INVISIBLE);
