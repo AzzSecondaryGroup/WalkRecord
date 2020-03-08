@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -220,7 +221,7 @@ public class LocationService extends Service {
      */
     public void walkStart(Location location) {
         if (walkRecordDao == null) {
-            walkRecordDao = new WalkRecordDao(getApplicationContext());
+            walkRecordDao = new WalkRecordDao(context);
         }
 
         String startTime = AppContract.now();
@@ -254,6 +255,8 @@ public class LocationService extends Service {
 
             String endTime = AppContract.now();
             walkRecordDao.updateHistory(walkHistoryNum, endTime, stepCont, totalDistanceKm, burnedCalories);
+
+            sendBroadCast(stepCont, totalDistanceKm, burnedCalories);
         }
 
         lastLocation = location;
@@ -272,6 +275,23 @@ public class LocationService extends Service {
                 location.getLatitude(), location.getLongitude(), results);
 
         return results[0];
+    }
+
+    /**
+     * レシーバーにブロードキャストを送信
+     * @param stepCont 歩数
+     * @param totalDistance 距離
+     * @param burnedCalories 消費カロリー
+     */
+    protected void sendBroadCast(int stepCont, double totalDistance, int burnedCalories) {
+
+        Intent intent = new Intent();
+        intent.putExtra("stepCont", stepCont);
+        intent.putExtra("totalDistance", totalDistance);
+        intent.putExtra("burnedCalories", burnedCalories);
+        intent.setAction("UPDATE_ACTION");
+
+        getBaseContext().sendBroadcast(intent);
     }
 
     /**

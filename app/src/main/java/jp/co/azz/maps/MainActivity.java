@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -11,6 +12,8 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -50,6 +53,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -836,13 +840,16 @@ private static final String TAG = "MainActivity";
             Intent intent = new Intent(getApplication(), LocationService.class);
             startForegroundService(intent);
 
-            // Serviceから更新結果を受け取る場合に行う処理（途中）
-//            upReceiver = new UpdateReceiver();
-//            intentFilter = new IntentFilter();
-//            intentFilter.addAction("UPDATE_ACTION");
-//            registerReceiver(upReceiver, intentFilter);
-//
-//            upReceiver.registerHandler(updateHandler);
+            // Serviceから更新結果を受け取る場合に行う処理
+            UpdateReceiver receiver = new UpdateReceiver();
+            IntentFilter filter = new IntentFilter();
+            filter.addAction("UPDATE_ACTION");
+            registerReceiver(receiver, filter);
+
+//            receiver.registerHandler(updateHandler);
+
+            LocationHandler handler = new LocationHandler(this);
+            receiver.registerHandler(handler);
         }
     }
 
@@ -855,6 +862,59 @@ private static final String TAG = "MainActivity";
 
             Intent intent = new Intent(getApplication(), LocationService.class);
             stopService(intent);
+        }
+    }
+
+//    /**
+//     * サービスから値を受け取ったら行う処理
+//     */
+//    private Handler updateHandler = new Handler() {
+//        @Override
+//        public void handleMessage(Message msg) {
+//
+//            Bundle bundle = msg.getData();
+//            int stepCont = bundle.getInt("stepCont");
+//            double totalDistance = bundle.getDouble("totalDistance");
+//            int burnedCalories = bundle.getInt("burnedCalories");
+//
+//            TextView main_step = (TextView) findViewById(R.id.main_step);
+//            main_step.setText(stepCont + "歩");
+//            TextView main_distance =(TextView) findViewById(R.id.main_distance);
+//            main_distance.setText(String.format("%.2f"+" km", totalDistance));
+//            TextView main_calorie = (TextView) findViewById(R.id.main_calorie);
+//            main_calorie.setText(burnedCalories + "kcal");
+//        }
+//    };
+    /**
+     * サービスから値を受け取ったら行う処理
+     */
+    private class LocationHandler extends Handler {
+        private final WeakReference<MainActivity> refMainActivity;
+
+        public LocationHandler (MainActivity mainActivity) {
+            refMainActivity = new WeakReference<>(mainActivity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            MainActivity activity = refMainActivity.get();
+            if (activity == null) {
+                showToast("handleMessageでactivityがnull");
+                return;
+            }
+
+            Bundle bundle = msg.getData();
+            int stepCont = bundle.getInt("stepCont");
+            double totalDistance = bundle.getDouble("totalDistance");
+            int burnedCalories = bundle.getInt("burnedCalories");
+
+            TextView main_step = (TextView) findViewById(R.id.main_step);
+            main_step.setText(stepCont + "歩");
+            TextView main_distance =(TextView) findViewById(R.id.main_distance);
+            main_distance.setText(String.format("%.2f"+" km", totalDistance));
+            TextView main_calorie = (TextView) findViewById(R.id.main_calorie);
+            main_calorie.setText(burnedCalories + "kcal");
         }
     }
 
