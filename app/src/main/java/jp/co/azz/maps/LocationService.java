@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -139,7 +138,7 @@ public class LocationService extends Service {
         }
 
         LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(5000); // 更新間隔(ms)
+        locationRequest.setInterval(800); // 更新間隔(ms)
         locationRequest.setFastestInterval(5000); // 最速更新間隔(ms)
         // 高精度の位置情報を取得
         locationRequest.setPriority(
@@ -227,7 +226,7 @@ public class LocationService extends Service {
         String startTime = AppContract.now();
 
         walkHistoryNum = (int)walkRecordDao.insertHistory(startTime, startTime, 0, 0.0, 0);
-
+toastMake("散歩記録インサートNo:"+walkHistoryNum);
         walkRecordDao.insertCoordinate(walkHistoryNum, location.getLatitude(), location.getLongitude());
 
         lastLocation = location;
@@ -256,7 +255,10 @@ public class LocationService extends Service {
             String endTime = AppContract.now();
             walkRecordDao.updateHistory(walkHistoryNum, endTime, stepCont, totalDistanceKm, burnedCalories);
 
-            sendBroadCast(stepCont, totalDistanceKm, burnedCalories);
+            double[] currentLocation = {location.getLatitude(), location.getLongitude()};
+            toastMake("位置情報:["+location.getLatitude()+ "],[" + location.getLongitude()+"]" + stepCont+"歩 "+burnedCalories);
+
+            sendBroadCast(stepCont, totalDistanceKm, burnedCalories, currentLocation);
         }
 
         lastLocation = location;
@@ -282,13 +284,15 @@ public class LocationService extends Service {
      * @param stepCont 歩数
      * @param totalDistance 距離
      * @param burnedCalories 消費カロリー
+     * @param currentLocation 現在地
      */
-    protected void sendBroadCast(int stepCont, double totalDistance, int burnedCalories) {
+    protected void sendBroadCast(int stepCont, double totalDistance, int burnedCalories, double[] currentLocation) {
 
         Intent intent = new Intent();
         intent.putExtra("stepCont", stepCont);
         intent.putExtra("totalDistance", totalDistance);
         intent.putExtra("burnedCalories", burnedCalories);
+        intent.putExtra("currentLocation", currentLocation);
         intent.setAction("UPDATE_ACTION");
 
         getBaseContext().sendBroadcast(intent);

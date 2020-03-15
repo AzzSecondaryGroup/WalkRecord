@@ -18,6 +18,7 @@ public class UpdateReceiver extends BroadcastReceiver {
         int stepCont = bundle.getInt("stepCont");
         double totalDistance = bundle.getDouble("totalDistance");
         int burnedCalories = bundle.getInt("burnedCalories");
+        double[] currentLocation = bundle.getDoubleArray("currentLocation");
 
         if (handler != null) {
             Message msg = new Message();
@@ -26,6 +27,7 @@ public class UpdateReceiver extends BroadcastReceiver {
             data.putInt("stepCont", stepCont);
             data.putDouble("totalDistance", totalDistance);
             data.putInt("burnedCalories", burnedCalories);
+            data.putDoubleArray("currentLocation", currentLocation);
             msg.setData(data);
 
             handler.sendMessage(msg);
