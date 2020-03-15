@@ -360,16 +360,12 @@ private static final String TAG = "MainActivity";
 
         // 位置情報有効か
         boolean isLocationInvalid = false;
-        // GPSのみになっていないか
-        boolean isGpsOnly = false;
 
         try {
             // 位置情報設定取得
             int locationMode = Settings.Secure.getInt(getApplicationContext().getContentResolver(), Settings.Secure.LOCATION_MODE);
             if (locationMode == Settings.Secure.LOCATION_MODE_OFF){
                 isLocationInvalid = true;
-            } else if (locationMode == Settings.Secure.LOCATION_MODE_SENSORS_ONLY) {
-                isGpsOnly = true;
             }
         } catch (Settings.SettingNotFoundException e) {
             e.printStackTrace();
@@ -391,22 +387,6 @@ private static final String TAG = "MainActivity";
                     })
                     .show();
             return false;
-        } else if (isGpsOnly) {
-            // TODO　API変わったのでGPSのみで使えるかどうか念のため試す
-//            //GPSの位置情報モードが"GPSのみ利用" の場合
-//            //ダイアログでGPSの位置情報モードが"GPSのみ利用" 以外にするようメッセージを出す。
-//            new AlertDialog.Builder(this)
-//                    .setTitle("端末の位置情報モードが 「GPSのみ」になっています")
-//                    .setMessage("このアプリを使用するには、端末の位置情報モードを「GPSのみ」以外にしてください。")
-//                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            // OK button pressed
-//                            //何もしない
-//                        }
-//                    })
-//                    .show();
-//                    return false;
         }
 
         return true;
