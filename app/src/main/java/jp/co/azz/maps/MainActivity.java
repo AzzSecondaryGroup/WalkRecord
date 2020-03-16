@@ -197,8 +197,8 @@ private static final String TAG = "MainActivity";
         }
 
         new AlertDialog.Builder(this)
-                .setTitle("確認")
-                .setMessage("アプリを終了してもよろしいでしょうか？\n散歩情報の記録も終了します")
+                .setTitle("アプリを終了しますか")
+                .setMessage("散歩情報の記録も終了します")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -248,9 +248,7 @@ private static final String TAG = "MainActivity";
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
         if (isFirstMapDisp) {
-            showToast("onMapReady isFirstMapDisp is true");
             // Map初期表示用の位置座標のインスタンスを作成(取得できないときはダミーで高田馬場)
             float latitude = initPosData.getFloat("latitude", 0.0f);
             float longitude = initPosData.getFloat("longitude", 0.0f);
@@ -270,8 +268,6 @@ private static final String TAG = "MainActivity";
             // 現在地ボタンを表示
             setMyLocationButton();
 
-        } else {
-            showToast("onMapReady isFirstMapDisp is false");
         }
     }
 
@@ -422,9 +418,8 @@ private static final String TAG = "MainActivity";
             @Override
             public void onSuccess(Location location) {
                 if (location == null) {
-                    showToast("setStartLocation Result location is null");
+                    Log.w(TAG, "addOnSuccessListener location is null.");
                 } else {
-                    showToast("setStartLocation Result"+"("+location.getLongitude()+","+location.getLatitude()+")");
                     // 次の起動時に位置情報がすぐにとれない場合に初期表示する位置として保存する
                     SharedPreferences.Editor editor = initPosData.edit();
                     editor.putFloat("latitude", (float)location.getLatitude());
@@ -509,7 +504,7 @@ private static final String TAG = "MainActivity";
 
                     // サービス開始
                     startLocationService();
-                    
+
                     TextView startTime = this.findViewById(R.id.main_start_time);
                     startTime.setText(AppContract.now());
 
@@ -605,7 +600,7 @@ private static final String TAG = "MainActivity";
      */
     private void drawTrace(double[] currentLocation) {
         if (currentLocation == null) {
-            showToast("drawTrace called bad null");
+            Log.w(TAG, "drawTrace currentLocation is null.");
             return;
         }
 

@@ -14,7 +14,6 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 import android.support.v4.app.ActivityCompat;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -147,8 +146,6 @@ public class LocationService extends Service {
 //                LocationRequest.PRIORITY_LOW_POWER);
 //                LocationRequest.PRIORITY_NO_POWER);
         fusedLocationClient.requestLocationUpdates(locationRequest, mLocationCallback,null);
-
-        toastMake("位置情報取得開始");
     }
 
     /**
@@ -208,13 +205,6 @@ public class LocationService extends Service {
         return null;
     }
 
-    // トーストの生成
-    private void toastMake(String message){
-        Toast toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
-        // 位置調整
-        toast.show();
-    }
-
     /**
      * 初回位置情報取得時のDB登録
      */
@@ -226,7 +216,6 @@ public class LocationService extends Service {
         String startTime = AppContract.now();
 
         walkHistoryNum = (int)walkRecordDao.insertHistory(startTime, startTime, 0, 0.0, 0);
-toastMake("散歩記録インサートNo:"+walkHistoryNum);
         walkRecordDao.insertCoordinate(walkHistoryNum, location.getLatitude(), location.getLongitude());
 
         lastLocation = location;
@@ -256,7 +245,6 @@ toastMake("散歩記録インサートNo:"+walkHistoryNum);
             walkRecordDao.updateHistory(walkHistoryNum, endTime, stepCont, totalDistanceKm, burnedCalories);
 
             double[] currentLocation = {location.getLatitude(), location.getLongitude()};
-            toastMake("位置情報:["+location.getLatitude()+ "],[" + location.getLongitude()+"]" + stepCont+"歩 "+burnedCalories);
 
             sendBroadCast(stepCont, totalDistanceKm, burnedCalories, currentLocation);
         }
