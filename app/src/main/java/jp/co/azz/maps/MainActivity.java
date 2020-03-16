@@ -1,7 +1,6 @@
 package jp.co.azz.maps;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -195,9 +194,22 @@ private static final String TAG = "MainActivity";
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
         }
+
+        new AlertDialog.Builder(this)
+                .setTitle("確認")
+                .setMessage("アプリを終了してもよろしいでしょうか？\n散歩情報の記録も終了します")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                }).show();
     }
 
     @Override
@@ -350,11 +362,9 @@ private static final String TAG = "MainActivity";
         }
     }
 
-
     /**
      * 端末の位置情報機能の状態が有効か無効かを判断する。
      * 位置情報がOFFの場合、ONにするよう促す、ダイアログを出す。
-     * 位置情報モードが"GPSのみ利用" の場合ダイアログを出す。
      */
     private boolean isTerminalLocationEnabled() {
 
@@ -377,7 +387,7 @@ private static final String TAG = "MainActivity";
             //ダイアログで位置情報をONにするように促すメッセージを出す。
             new AlertDialog.Builder(this)
                     .setTitle("端末の位置情報設定がOFFになっています")
-                    .setMessage("このアプリを使用するには、端末の位置情報設定をONにして位置情報モードを「GPSのみ」以外にしてください。")
+                    .setMessage("このアプリを使用するには、端末の位置情報設定をONにしてください。")
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -499,6 +509,9 @@ private static final String TAG = "MainActivity";
 
                     // サービス開始
                     startLocationService();
+                    
+                    TextView startTime = this.findViewById(R.id.main_start_time);
+                    startTime.setText(AppContract.now());
 
                     // 散歩記録開始メッセージ表示
                     showToast("散歩の記録を開始しました。");
