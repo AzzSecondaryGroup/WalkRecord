@@ -153,25 +153,25 @@ private static final String TAG = "MainActivity";
         initPosData = getSharedPreferences("PositionData", Context.MODE_PRIVATE);
 
         // ****************** バージョン確認 ******************
-        if (VersionCheck.isExistNewVersion(getApplicationContext())) {
-            new AlertDialog.Builder(this)
-                    .setTitle("新しいバージョンに更新可能です")
-                    .setPositiveButton("今すぐ更新", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // OK button pressed
-                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=jp.co.azz.maps")));
-                            dialog.dismiss();
-                        }
-                    })
-                    .setNegativeButton("後で更新", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .setCancelable(false)
-                    .show();
-        }
+//        if (VersionCheck.isExistNewVersion(getApplicationContext())) {
+//            new AlertDialog.Builder(this)
+//                    .setTitle("新しいバージョンに更新可能です")
+//                    .setPositiveButton("今すぐ更新", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            // OK button pressed
+//                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=jp.co.azz.maps")));
+//                            dialog.dismiss();
+//                        }
+//                    })
+//                    .setNegativeButton("後で更新", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                        }
+//                    })
+//                    .setCancelable(false)
+//                    .show();
+//        }
         // ***************************************************
     }
 
