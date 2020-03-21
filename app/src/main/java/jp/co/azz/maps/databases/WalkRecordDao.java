@@ -171,33 +171,6 @@ public class WalkRecordDao {
     }
 
     /**
-     * 座標テーブルの最終更新レコードをSelect
-     * @param historyId
-     * @return
-     */
-    @Nullable
-    public CoordinateDto selectLastCoordinate(long historyId){
-        try(
-                SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
-                Cursor cursor = db.query(
-                        DatabaseContract.Coordinate.TABLE_NAME,
-                        null,
-                        DatabaseContract.Coordinate.COLUMN_NUMBER_OF_HISTORY + " = ?",
-                        new String[]{String.valueOf(historyId)},
-                        null,
-                        null,
-                        "desc",
-                        "1"
-                )
-        ) {
-            if(cursor.moveToFirst()) {
-                return new CoordinateDto(cursor);
-            }
-            return null;
-        }
-    }
-
-    /**
      * 座標テーブルDelete
      * @param ID
      */
