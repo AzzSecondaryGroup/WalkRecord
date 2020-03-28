@@ -194,7 +194,7 @@ private static final String TAG = "MainActivity";
         initPosData = getSharedPreferences("PositionData", Context.MODE_PRIVATE);
 
         // ****************** バージョン確認 ******************
-        if (VersionCheck.isExistNewVersion(getApplicationContext())) {
+        if (VersionCheck.isExistNewVersion(this)) {
             new AlertDialog.Builder(this)
                     .setTitle("新しいバージョンに更新可能です")
                     .setPositiveButton("今すぐ更新", new DialogInterface.OnClickListener() {

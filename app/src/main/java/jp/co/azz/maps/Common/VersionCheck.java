@@ -1,5 +1,6 @@
 package jp.co.azz.maps.Common;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -10,21 +11,25 @@ import java.util.concurrent.ExecutionException;
 public class VersionCheck {
     private static final String TAG = "VersionCheck";
 
-    public static boolean isExistNewVersion(Context context) {
+    /**
+     * 新しいバージョンが存在するかチェック
+     * @param activity {Activity} 呼び出し元のActivity
+     * @return {boolean} 端末のバージョン と RemoteConfig から取得した バージョンが 一致 しない場合 true
+     */
+    public static boolean isExistNewVersion(Activity activity) {
         String latestVersion = null;
         String localVersion = null;
         try {
-            // ストアの最新バージョン
-            latestVersion = new GetLatestVersion().execute().get();
-            Log.d(TAG, "!!! Latest version = " + latestVersion);
+
+            //RemoteConfig からアプリの最新バージョン情報を取得
+            latestVersion = new VersionCheckRemoteConfig().getForceUpdateFromRemoteConfig(activity);
+            Log.d(TAG, "!!! Latest version(RemoteConfig) = " + latestVersion);
 
             // 端末のバージョン
-            localVersion = localVersionName(context);
-            Log.d(TAG, "!!! versionName:" + localVersion);
+            localVersion = localVersionName(activity.getApplicationContext());
+            Log.d(TAG, "!!! Local version:" + localVersion);
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         // バージョンが異なる場合は更新対象
