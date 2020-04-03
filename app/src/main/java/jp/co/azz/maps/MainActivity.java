@@ -477,8 +477,12 @@ private static final String TAG = "MainActivity";
     }
 
     private void showToast(String msg) {
-        Toast error = Toast.makeText(this, msg, Toast.LENGTH_LONG);
-        error.show();
+        showToast(msg, Toast.LENGTH_LONG);
+    }
+
+    private void showToast(String msg, int length) {
+        Toast toast = Toast.makeText(this, msg, length);
+        toast.show();
     }
 
     @Override
@@ -509,7 +513,7 @@ private static final String TAG = "MainActivity";
                     startTime.setText(AppContract.now());
 
                     // 散歩記録開始メッセージ表示
-                    showToast("散歩の記録を開始しました。");
+                    showToast(getString(R.string.record_start), Toast.LENGTH_SHORT);
 
                 } else {
                     // サービス終了
@@ -520,7 +524,7 @@ private static final String TAG = "MainActivity";
                     endTime.setText(AppContract.now());
 
                     // 散歩記録終了メッセージ表示
-                    showToast("散歩の記録を終了しました。");
+                    showToast(getString(R.string.record_end), Toast.LENGTH_SHORT);
                 }
         }
     }
@@ -584,11 +588,11 @@ private static final String TAG = "MainActivity";
             double[] currentLocation = bundle.getDoubleArray("currentLocation");
 
             TextView main_step = (TextView) findViewById(R.id.main_step);
-            main_step.setText(stepCont + "歩");
+            main_step.setText(stepCont + getString(R.string.step));
             TextView main_distance =(TextView) findViewById(R.id.main_distance);
-            main_distance.setText(String.format("%.2f"+" km", totalDistance));
+            main_distance.setText(String.format("%.2f" + getString(R.string.km), totalDistance));
             TextView main_calorie = (TextView) findViewById(R.id.main_calorie);
-            main_calorie.setText(burnedCalories + "kcal");
+            main_calorie.setText(burnedCalories + getString(R.string.calorie));
 
             drawTrace(currentLocation);
         }
@@ -648,11 +652,11 @@ private static final String TAG = "MainActivity";
         TextView main_end_time = this.findViewById(R.id.main_end_time);
         main_end_time.setVisibility(View.INVISIBLE);
         TextView main_distance = findViewById(R.id.main_distance);
-        main_distance.setText(String.format("0km"));
+        main_distance.setText(getString(R.string.hd_init_distance));
         TextView main_step = findViewById(R.id.main_step);
-        main_step.setText(String.format("0歩"));
+        main_step.setText(getString(R.string.hd_init_step));
         TextView main_calorie = findViewById(R.id.main_calorie);
-        main_calorie.setText(String.format("0cal"));
+        main_calorie.setText(getString(R.string.hd_init_calorie));
 
         if (!polyOptions.getPoints().isEmpty()) {
             initPolylineOptions();

@@ -9,6 +9,9 @@
     <string name="hd_start_time">開始時刻</string>
     <string name="hd_end_time">終了時刻</string>
     <string name="hd_distance">距離：</string>
+    <string name="hd_init_distance">0.00km</string>
+    <string name="hd_init_step">0歩</string>
+    <string name="hd_init_calorie">0kcal</string>
     <string name="km">km</string>
     <string name="hd_step">歩数：</string>
     <string name="step">歩</string>
@@ -17,6 +20,8 @@
     <string name="text_on">Stop</string>
     <string name="text_off">Start</string>
     <string name="location_unauthorized_msg">位置情報にアクセスできないため、地図を動かすことができません</string>
+    <string name="record_start">散歩の記録を開始しました。</string>
+    <string name="record_end">散歩の記録を終了しました。</string>
 
     <string name="alert_dialog_yes">YES</string>
     <string name="alert_dialog_no">NO</string>
@@ -24,6 +29,7 @@
     <string name="alert_dialog_cancel">CANCEL</string>
     <string name="view_calorie_calculation">消費ｶﾛﾘｰ</string>
     <string name="view_setting">設定画面</string>
+    <string name="view_setting_description">身長と体重は歩数やカロリーの計算に使用します</string>
     <string name="view_detail">お散歩履歴</string>
     <string name="view_history_list">お散歩履歴一覧</string>
 </resources>
