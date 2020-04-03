@@ -55,15 +55,7 @@ public class LocationService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        Log.d("LocationService", "onCreate開始！！！！！！！！！");
-
         context = getApplicationContext();
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-        walkRecordDao = new WalkRecordDao(context);
-
-        setCalcBaseInfo();
     }
 
     /**
@@ -75,6 +67,9 @@ public class LocationService extends Service {
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        Log.d(TAG, "■onStartCommand call");
+        initialize();
 
         int requestCode = 0;
         String channelId = "default";
@@ -92,7 +87,6 @@ public class LocationService extends Service {
                 channelId, title , NotificationManager.IMPORTANCE_DEFAULT);
         channel.setDescription("Silent Notification");
         // 通知音を消さないと毎回通知音が出てしまう
-        // この辺りの設定はcleanにしてから変更
         channel.setSound(null,null);
         // 通知ランプを消す
         channel.enableLights(false);
@@ -137,7 +131,7 @@ public class LocationService extends Service {
         }
 
         LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(800); // 更新間隔(ms)
+        locationRequest.setInterval(8000); // 更新間隔(ms)
         locationRequest.setFastestInterval(5000); // 最速更新間隔(ms)
         // 高精度の位置情報を取得
         locationRequest.setPriority(
@@ -163,31 +157,36 @@ public class LocationService extends Service {
     };
 
     /**
-     *
+     * 位置情報保存
      * @param location
      */
     private void saveLocationData(Location location) {
 
-            // 初回スタート時
-            if (isFirst) {
-                Log.d(TAG, "■スタート後初回の位置情報インサート");
-                // 散歩履歴をインサート
-                walkStart(location);
+        // 初回位置情報は精度が悪いので位置情報を捨てる
+        if (isFirst) {
+            isFirst = !isFirst;
+            return;
+        }
 
-                Log.d(TAG, "■散歩履歴インサート（レコードNo）：" + walkHistoryNum);
-                isFirst = !isFirst;
-            } else {
+        if (lastLocation == null) {
+            // 散歩履歴をインサート
+            walkStart(location);
 
-                //座標更新、履歴テーブル更新
-                updateWalkRecord(location);
-            }
+            Log.d(TAG, "■散歩履歴インサート（レコードNo）：" + walkHistoryNum);
+
+        } else {
+
+            //座標更新、履歴テーブル更新
+            updateWalkRecord(location);
+        }
+
+        lastLocation = location;
     }
 
     /**
      * 計測終了
      */
     private void stopAcquisition() {
-        isFirst = true;
         if (fusedLocationClient != null) {
             fusedLocationClient.removeLocationUpdates(mLocationCallback);
         }
@@ -209,16 +208,15 @@ public class LocationService extends Service {
      * 初回位置情報取得時のDB登録
      */
     public void walkStart(Location location) {
-        if (walkRecordDao == null) {
-            walkRecordDao = new WalkRecordDao(context);
-        }
+        Log.d(TAG, "■First Insert");
 
         String startTime = AppContract.now();
 
         walkHistoryNum = (int)walkRecordDao.insertHistory(startTime, startTime, 0, 0.0, 0);
         walkRecordDao.insertCoordinate(walkHistoryNum, location.getLatitude(), location.getLongitude());
 
-        lastLocation = location;
+        double[] currentLocation = {location.getLatitude(), location.getLongitude()};
+        sendBroadCast(0, 0, 0, currentLocation);
     }
 
     /**
@@ -226,30 +224,26 @@ public class LocationService extends Service {
      */
     public void updateWalkRecord(Location location) {
 
-        if (lastLocation != null) {
-            // 移動距離計算(メートル)
-            totalDistanceMeter += currentDistance(location);
+        // 移動距離計算(メートル)
+        totalDistanceMeter += currentDistance(location);
 
-            // 歩数計算
-            int stepCont = (int) ((totalDistanceMeter) / stepSizeMeter);
+        // 歩数計算
+        int stepCont = (int) ((totalDistanceMeter) / stepSizeMeter);
 
-            double totalDistanceKm = totalDistanceMeter / 1000;
+        double totalDistanceKm = totalDistanceMeter / 1000;
 
-            // 消費カロリー計算（kcal単位）
-            // 体重×メッツ値×時間
-            int burnedCalories = (int) (1.05 * 3.5 * weight * ( totalDistanceKm / walkHourlySpeed ) );
+        // 消費カロリー計算（kcal単位）
+        // 体重×メッツ値×時間
+        int burnedCalories = (int) (1.05 * 3.5 * weight * ( totalDistanceKm / walkHourlySpeed ) );
 
-            walkRecordDao.insertCoordinate(walkHistoryNum, location.getLatitude(), location.getLongitude());
+        walkRecordDao.insertCoordinate(walkHistoryNum, location.getLatitude(), location.getLongitude());
 
-            String endTime = AppContract.now();
-            walkRecordDao.updateHistory(walkHistoryNum, endTime, stepCont, totalDistanceKm, burnedCalories);
+        String endTime = AppContract.now();
+        walkRecordDao.updateHistory(walkHistoryNum, endTime, stepCont, totalDistanceKm, burnedCalories);
 
-            double[] currentLocation = {location.getLatitude(), location.getLongitude()};
+        double[] currentLocation = {location.getLatitude(), location.getLongitude()};
 
-            sendBroadCast(stepCont, totalDistanceKm, burnedCalories, currentLocation);
-        }
-
-        lastLocation = location;
+        sendBroadCast(stepCont, totalDistanceKm, burnedCalories, currentLocation);
     }
 
     /**
@@ -261,7 +255,8 @@ public class LocationService extends Service {
 
         float[] results = new float[3];
         results[0] = 0;
-        Location.distanceBetween(lastLocation.getLatitude(), lastLocation.getLongitude(),
+        Location.distanceBetween(
+                lastLocation.getLatitude(), lastLocation.getLongitude(),
                 location.getLatitude(), location.getLongitude(), results);
 
         return results[0];
@@ -287,10 +282,24 @@ public class LocationService extends Service {
     }
 
     /**
+     * 初期化
+     */
+    private void initialize() {
+        // 何度かStart、Stopしたときに前の情報が残ることがあったので念のため毎回まとめて初期化
+        isFirst = true;
+        lastLocation = null;
+        totalDistanceMeter = 0.0;
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        walkRecordDao = new WalkRecordDao(context);
+        setCalcBaseInfo();
+    }
+
+    /**
      * 歩幅やカロリー計算で必要となる情報を設定
      */
     private void setCalcBaseInfo() {
-        //歩幅を計算（身長*0.45）
+        // 歩幅を計算（身長*0.45）
         int tall = walkRecordDao.getTall();
         if (tall == 0) {
             tall = DatabaseContract.Setting.DEFAULT_TALL;
