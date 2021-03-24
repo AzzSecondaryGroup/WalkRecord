@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="#2233bb"
-            android:text="身長と体重は歩数やカロリーの計算に使用します" />
+            android:text="@string/view_setting_description" />
         <!--<TextView-->
             <!--android:layout_marginTop="5dp"-->
             <!--android:id="@+id/textView"-->

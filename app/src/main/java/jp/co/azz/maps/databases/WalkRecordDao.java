@@ -45,8 +45,6 @@ public class WalkRecordDao {
      */
     @Nullable
     public HistoryDto selectByIdFromHistory(long historyId) {
-        //history(履歴テーブル)SELECT文
-        List<HistoryDto> historyList = new ArrayList<>();
 
         try(
                 SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
@@ -171,6 +169,7 @@ public class WalkRecordDao {
         db.insert(DatabaseContract.Coordinate.TABLE_NAME,null,cv);
 
     }
+
     /**
      * 座標テーブルDelete
      * @param ID
