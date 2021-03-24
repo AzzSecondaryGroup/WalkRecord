@@ -64,8 +64,7 @@ public class HistoryDto {
 
     public String getKilometer() {
         if (this.distance > 0) {
-            BigDecimal distance = new BigDecimal(this.distance);
-            return String.format("%.2f"+" km", distance.divide(new BigDecimal(1000)).setScale(5, ROUND_DOWN).doubleValue());
+            return String.format("%.2f"+" km", this.distance);
         }
         return "0㎞";
     }
